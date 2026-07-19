@@ -1,1 +1,1 @@
-# PIPELINED_RV32I
+# Single-Cycle-RV32I

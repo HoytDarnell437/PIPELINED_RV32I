@@ -1,56 +1,45 @@
-# ==========================================
-# Vivado Project Clutter & Temporary Files
-# ==========================================
+# Directories to ignore
+vivado/
+.nvim/
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Verilator/simulator temporaries
+*.dmp
 *.log
-*.jou
-*.str
-*.os
-*.ini
-.Xil/
-vivado_pid*.str
-
-# Ignore Vivado run directories (where synthesis and simulation run)
-*.runs/
-*.dir/
-*.gen/
-*.sim/
-*.ip_user_files/
-*.hw/
-*.cache/
-*.ioplanning/
-
-# Ignore compiled simulation snapshots and wave outputs
-*.wdb
-*.wcfg
+*.csrc
 *.vcd
+obj_*
+logs
 
-# Ignore SDK / Vitis artifacts if you use them later
-.metadata/
-*.sdk/
-*.pif
-
-# ==========================================
-# Backup and Autosave Files
-# ==========================================
-*~
-.#*
-.*.swp
-*.bak
-
-# ==========================================
-# OS and Editor Specific Files
-# ==========================================
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# ==========================================
-# Project Exceptions (CRITICAL)
-# ==========================================
-# Vivado needs the .xpr project file and the actual constraints/IP sources.
-# These rules ensure they never get accidentally ignored.
-!*.xpr
-!*.xdc
-!*.xci
-!*.xcix
+# Executables
+*.exe
+*.out
+*.app
+*.gcda
+*.gcov
+*.gcno
+*qmake_gcov
+*.pro.user
