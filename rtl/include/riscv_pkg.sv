@@ -6,11 +6,13 @@
 //
 // Description:
 //   Shared constants for the RV32I single-cycle processor.  Covers opcodes,
-//   funct3, funct7, alu control, write source, pc source, immediate select, and size
+//  funct3, funct7, alu control, write source, pc source, immediate select, and size
 //
 // Import into every module with `import riscv_pkg::*;`.
 //------------------------------------------------------------------------------
 package riscv_pkg;
+// -- parameters --
+
     // Opcodes
     localparam OP_LUI         = 7'b0110111;
     localparam OP_AUIPC       = 7'b0010111;
@@ -143,5 +145,57 @@ package riscv_pkg;
     localparam SEL_SWITCHES = 2'b00;
     localparam SEL_BUTTONS  = 2'b01;
     localparam SEL_LEDS     = 2'b10;
+
+// -- Pipeline Port Structs -- 
+    // Fetch -> Decode
+    typedef struct packed {
+        logic [31:0] pc;
+        logic [31:0] pc_4;
+        logic [31:0] instr;
+    } if_id_data_t;
+    
+    // Decode -> Execute
+    typedef struct packed {
+        logic [31:0] pc;
+        logic [31:0] pc_4;
+        logic [4:0] rs1;
+        logic [4:0] rs2;
+        logic [4:0] rd;
+        logic [3:0] alu_ctrl;
+        logic alu_src_a;
+        logic alu_src_b;
+        logic [31:0] imm;
+        logic reg_write;
+        logic [1:0] wr_src;
+        logic [1:0] pc_src;
+        logic mem_wr;
+        logic mem_rd;
+        logic [1:0] mem_size;
+        logic sign;
+    } id_ex_data_t;
+
+    // Execute -> Memory
+    typedef struct packed {
+        logic [31:0] pc_4;
+        logic [31:0] alu_res;
+        logic mem_wr;
+        logic mem_rd;
+        logic [1:0] mem_size;
+        logic sign;
+        logic [31:0] rs2_data;
+        logic [4:0] rd;
+        logic [1:0] wr_src;
+        logic reg_write;
+    } ex_mem_data_t;
+
+    // Memory -> Writeback
+    typedef struct packed {
+        logic [31:0] alu_res;
+        logic [31:0] rd_data;
+        logic [31:0] pc_4;
+        logic [4:0] rd;
+        logic [1:0] wr_src;
+        logic reg_write;
+    } mem_wb_data_t;
 
 endpackage // riscv_pkg

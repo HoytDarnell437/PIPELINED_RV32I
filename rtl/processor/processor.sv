@@ -19,145 +19,108 @@
 module processor import riscv_pkg::*; (
 input logic clk,
 input logic rst_n,
-input logic [31:0] read_data_in,
-output logic write_nread,
-output logic [3:0] byte_en,
-output logic [31:0] write_data_out,
-output logic [29:0] address
+mmio_bus_if.master bus
 );
 
-// -- signal declaration --
-logic [31:0] data1_in;
-logic [31:0] data2_in;
-logic [31:0] wr_data;
-logic [1:0] pc_src;
+logic pc_stall;
+logic if_id_stall;
+logic id_ex_stall;
+logic ex_mem_stall;
+logic mem_wb_stall;
 
-logic [31:0] addr;
-logic [31:0] pc_plus_4;
-logic [31:0] instr;
+//logic if_id_flush;
+logic id_ex_flush;
 
-logic [31:0] data1;
-logic [31:0] data2;
-logic [4:0] rs1;
-logic [4:0] rs2;
-logic [4:0] rd;
+logic id_uses_rs1, id_uses_rs2;
 
-logic [3:0] alu_ctrl;
-logic alu_src_a;
-logic alu_src_b;
-logic reg_write;
-logic [1:0] wr_src;
-logic [2:0] imm_sel;
-logic [1:0] pc_src_sel;
-logic [1:0] mem_size;
-logic sign;
-
-logic [31:0] alu_res;
+logic jump;
 logic branch;
-logic [31:0] imm;
 
-logic [31:0] read_data;
-logic [31:0] write_data;
+logic [31:0] reg_rd1, reg_rd2;
+logic [31:0] wr_data;
 
-// -- combinational logic --
-always_comb begin
-    // port aliases
-    write_data = data2;
-    address = alu_res[31:2];
+if_id_data_t if_id_data;
+id_ex_data_t id_ex_data;
+ex_mem_data_t ex_mem_data;
+mem_wb_data_t mem_wb_data;
 
-    // muxes 
-    unique case (branch)
-        IGNORE_BRANCH: pc_src = pc_src_sel;
-        TAKE_BRANCH: pc_src = PCSRC_BRANCH;
-    endcase
-    
-    unique case (wr_src)
-        WRSRC_ALU: wr_data = alu_res;
-        WRSRC_READ: wr_data = read_data;
-        WRSRC_PC: wr_data = pc_plus_4;
-    endcase
-    
-    unique case (alu_src_a)
-        ALUSRC1_PC: data1_in = addr;
-        ALUSRC1_RS: data1_in = data1;
-    endcase
-    
-    unique case (alu_src_b)
-        ALUSRC2_RS: data2_in = data2;
-        ALUSRC2_IMM: data2_in = imm;
-    endcase
-end
-
-// -- module instances -- 
-
-pc pc_inst (
-    .clk(clk),
-    .rst_n(rst_n),
-    .pc_src(pc_src),
-    .imm(imm),
-    .alu_res(alu_res),
-    .addr(addr),
-    .pc_plus_4(pc_plus_4)
+fetch_stage fetch_stage_inst (
+    .clk       (clk),
+    .rst_n     (rst_n),
+    .pc_stall  (pc_stall),
+    .if_id_stall     (if_id_stall),
+    .pc_src    (pc_src),
+    .imm       (imm),
+    .alu_res   (alu_res),
+    .if_id_data(if_id_data)
 );
 
-instruction_memory instruction_memory_inst (
-    .addr(addr),
-    .instr(instr)
+decode_stage decode_stage_inst (
+    .clk       (clk),
+    .rst_n     (rst_n),
+    .stall     (id_ex_stall),
+    .flush     (id_ex_flush),
+    .if_id_data(if_id_data),
+    .id_ex_data(id_ex_data),
+    .uses_rs1  (id_uses_rs1),
+    .uses_rs2  (id_uses_rs2),
+    .jump      (jump)
+);
+
+execute_stage execute_stage_inst (
+    .clk        (clk),
+    .rst_n      (rst_n),
+    .stall      (ex_mem_stall),
+    .reg_rd1    (reg_rd1),
+    .reg_rd2    (reg_rd2),
+    .id_ex_data (id_ex_data),
+    .ex_mem_data(ex_mem_data),
+    .branch     (branch)
+);
+
+memory_stage memory_stage_inst (
+    .clk        (clk),
+    .rst_n      (rst_n),
+    .stall      (mem_wb_stall),
+    .ex_mem_data(ex_mem_data),
+    .mem_wb_data(mem_wb_data),
+    .bus        (bus)
+);
+
+writeback_stage writeback_stage_inst (
+    .mem_wb_data(mem_wb_data),
+    .wr_data    (wr_data)
 );
 
 register_file register_file_inst (
-    .clk(clk),
-    .rst_n(rst_n),
-    .rs1(rs1),
-    .rs2(rs2),
-    .rd(rd),
-    .wr_data(wr_data),
-    .reg_write(reg_write),
-    .data1(data1),
-    .data2(data2)
+    .clk      (clk),
+    .rst_n    (rst_n),
+    .rs1      (id_ex_data.rs1),
+    .rs2      (id_ex_data.rs2),
+    .rd       (mem_wb_data.rd),
+    .wr_data  (wr_data),
+    .reg_write(mem_wb_data.reg_write),
+    .data1    (reg_rd1),
+    .data2    (reg_rd2)
 );
 
-decoder decoder_inst (
-    .instr(instr),
-    .branch(branch),
-    .rs1(rs1),
-    .rs2(rs2),
-    .rd(rd),
-    .alu_ctrl(alu_ctrl),
-    .alu_src_a(alu_src_a),
-    .alu_src_b(alu_src_b),
-    .reg_write(reg_write),
-    .wr_src(wr_src),
-    .imm_sel(imm_sel),
-    .mem_rw(write_nread),
-    .pc_src(pc_src_sel),
-    .mem_size(mem_size),
-    .sign(sign)
-);
-
-alu alu_inst (
-    .alu_ctrl(alu_ctrl),
-    .data1(data1_in),
-    .data2(data2_in),
-    .alu_res(alu_res),
-    .branch(branch)
-);
-
-lsu lsu_inst (
-    .byte_addr(alu_res[1:0]),
-    .mem_size(mem_size),
-    .sign(sign),
-    .read_data_in(read_data_in),
-    .read_data_out(read_data),
-    .write_data_in(write_data),
-    .write_data_out(write_data_out),
-    .byte_en(byte_en)
-);
-
-imm_gen imm_gen_inst (
-    .instr(instr),
-    .imm_sel(imm_sel),
-    .imm(imm)
+hazard_unit hazard_unit_inst (
+    .id_rs1        (if_id_data.instr[19:15]),
+    .id_rs2        (if_id_data.instr[24:20]),
+    .ex_rd         (id_ex_data.rd),
+    .mem_rd        (ex_mem_data.rd),
+    .id_uses_rs1   (id_uses_rs1),
+    .id_uses_rs2   (id_uses_rs2),
+    .ex_reg_write  (ex_mem_data.reg_write),
+    .mem_reg_write (mem_wb_data.reg_write),
+    .branch        (branch),
+    .jump          (jump),
+    .pc_stall      (pc_stall),
+    .if_id_stall   (if_id_stall),
+    .id_ex_stall   (id_ex_stall),
+    .ex_mem_stall  (ex_mem_stall),
+    .mem_wb_stall  (mem_wb_stall),
+    .id_ex_flush   (id_ex_flush)
 );
 
 endmodule // processor

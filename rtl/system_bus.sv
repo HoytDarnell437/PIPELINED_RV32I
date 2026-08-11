@@ -27,58 +27,48 @@ logic clk_sys;
 
 logic rst_n;
 
-logic [31:0] read_data;
-
-logic [31:0] mem_read_data;
-logic mem_write_nread;
+logic mem_rd;
+logic mem_wr;
+logic [31:0] mem_rd_data;
 
 logic [1:0] peripheral_sel;
 
-logic write_nread;
-logic [3:0] byte_en;
-logic [31:0] write_data;
-logic [29:0] address;
-
 logic [3:0] led_reg;
 
-// -- combinational logic --
 always_comb begin
-    // default values
-    mem_write_nread = 1'b0;
+    mem_rd = '0;
+    mem_wr = '0;
+    bus.rd_data = '0;
 
-    // Assign
     leds = led_reg;
 
-    // peripheral mux
     unique case (peripheral_sel)
         ACCESS_DATA_MEMORY: begin
-            read_data = mem_read_data;
-            mem_write_nread = write_nread;
+            mem_rd = bus.rd;
+            mem_wr = bus.wr;
+            bus.rd_data = mem_rd_data;
         end
         ACCESS_SWITCHES: begin
-            read_data = { 28'b0 , switches };
+            bus.rd_data = { 28'b0 , switches };
         end 
         ACCESS_BUTTONS: begin
-            read_data = { 28'b0 , buttons };
+            bus.rd_data = { 28'b0 , buttons };
         end 
     endcase
 end
 
-// -- sequential logic --
 always_ff @(posedge clk_sys) begin
     if (!rst_n) begin
         led_reg = 4'b0;
     end else begin
         if (peripheral_sel == ACCESS_LEDS) begin
-            led_reg = write_data[3:0];
+            led_reg = bus.wr_data[3:0];
         end
     end
 end
 
-// -- module instances -- 
-
 clk_core clock_core (
-    .clk(clk_sys),
+    .clk_out1(clk_sys),
     .resetn(sys_rst_n),
     .locked(locked),
     .clk_in1(clk_100)
@@ -93,26 +83,28 @@ sync_reset sync_reset_inst (
 
 data_memory data_memory_inst (
     .clk(clk_sys),
-    .wr(mem_write_nread),
-    .byte_en(byte_en),
-    .write_data(write_data),
-    .addr(address),
-    .read_data(mem_read_data)
+    .wr(mem_wr),
+    .rd(mem_rd),
+    .byte_en(bus.byte_en),
+    .wr_data(bus.wr_data),
+    .addr(bus.addr),
+    .rd_data(mem_rd_data)
 );
 
 address_decoder address_decoder_inst (
-    .address(address),
+    .address(bus.addr),
     .peripheral_sel(peripheral_sel)
 );
 
 processor processor_inst (
     .clk(clk_sys),
     .rst_n(rst_n),
-    .read_data_in(read_data),
-    .write_nread(write_nread),
-    .byte_en(byte_en),
-    .write_data_out(write_data),
-    .address(address)
+    .bus (bus.master)
+);
+
+mmio_bus_if bus (
+    .clk  (clk_sys),
+    .rst_n(rst_n)
 );
 
 endmodule // system_bus
