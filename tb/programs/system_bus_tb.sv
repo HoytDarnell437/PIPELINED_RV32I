@@ -31,8 +31,8 @@ module system_bus_tb;
     initial begin
         clk = 0;
         rst_n = 0;
-        switches = 4'b0000;
-        buttons = 4'b0000;
+        switches = 4'b0101;
+        buttons = 4'b0001;
 
         #50;
 
@@ -40,11 +40,7 @@ module system_bus_tb;
         
         @(posedge locked);
 
-        repeat (400) begin
-            repeat (10) @(posedge clk);
-            switches = switches + 1;
-            $display("LEDs = %04b", leds);
-        end
+        repeat (4000) @(posedge clk);
 
         $finish;
     end

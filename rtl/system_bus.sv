@@ -29,16 +29,19 @@ logic rst_n;
 
 logic mem_rd;
 logic mem_wr;
+logic mem_ready;
 logic [31:0] mem_rd_data;
 
 logic [1:0] peripheral_sel;
 
 logic [3:0] led_reg;
+logic led_ready;
 
 always_comb begin
     mem_rd = '0;
     mem_wr = '0;
     bus.rd_data = '0;
+    bus.ready = '0;
 
     leds = led_reg;
 
@@ -47,22 +50,30 @@ always_comb begin
             mem_rd = bus.rd;
             mem_wr = bus.wr;
             bus.rd_data = mem_rd_data;
+            bus.ready = mem_ready;
         end
         ACCESS_SWITCHES: begin
             bus.rd_data = { 28'b0 , switches };
+            bus.ready = '1;
         end 
         ACCESS_BUTTONS: begin
             bus.rd_data = { 28'b0 , buttons };
+            bus.ready = '1;
         end 
+        ACCESS_LEDS: begin
+            bus.ready = led_ready;
+        end
     endcase
 end
 
 always_ff @(posedge clk_sys) begin
     if (!rst_n) begin
         led_reg = 4'b0;
+        led_ready <= '0;
     end else begin
         if (peripheral_sel == ACCESS_LEDS) begin
             led_reg = bus.wr_data[3:0];
+            led_ready <= '1;
         end
     end
 end
@@ -83,12 +94,14 @@ sync_reset sync_reset_inst (
 
 data_memory data_memory_inst (
     .clk(clk_sys),
+    .rst_n(rst_n),
     .wr(mem_wr),
     .rd(mem_rd),
     .byte_en(bus.byte_en),
     .wr_data(bus.wr_data),
     .addr(bus.addr),
-    .rd_data(mem_rd_data)
+    .rd_data(mem_rd_data),
+    .ready(mem_ready)
 );
 
 address_decoder address_decoder_inst (

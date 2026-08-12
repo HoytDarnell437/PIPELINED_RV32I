@@ -28,16 +28,18 @@ logic id_ex_stall;
 logic ex_mem_stall;
 logic mem_wb_stall;
 
-//logic if_id_flush;
+logic [1:0] pc_src;
+logic [31:0] alu_res;
+logic [31:0] pc_imm;
+
+logic if_id_flush;
 logic id_ex_flush;
 
 logic id_uses_rs1, id_uses_rs2;
 
-logic jump;
-logic branch;
-
-logic [31:0] reg_rd1, reg_rd2;
+logic [31:0] reg_rs1, reg_rs2;
 logic [31:0] wr_data;
+logic mem_busy;
 
 if_id_data_t if_id_data;
 id_ex_data_t id_ex_data;
@@ -45,14 +47,15 @@ ex_mem_data_t ex_mem_data;
 mem_wb_data_t mem_wb_data;
 
 fetch_stage fetch_stage_inst (
-    .clk       (clk),
-    .rst_n     (rst_n),
-    .pc_stall  (pc_stall),
-    .if_id_stall     (if_id_stall),
-    .pc_src    (pc_src),
-    .imm       (imm),
-    .alu_res   (alu_res),
-    .if_id_data(if_id_data)
+    .clk         (clk),
+    .rst_n       (rst_n),
+    .pc_stall    (pc_stall),
+    .if_id_stall (if_id_stall),
+    .flush       (if_id_flush),
+    .pc_src      (pc_src),
+    .pc_imm      (pc_imm),
+    .alu_res     (alu_res),
+    .if_id_data  (if_id_data)
 );
 
 decode_stage decode_stage_inst (
@@ -63,19 +66,20 @@ decode_stage decode_stage_inst (
     .if_id_data(if_id_data),
     .id_ex_data(id_ex_data),
     .uses_rs1  (id_uses_rs1),
-    .uses_rs2  (id_uses_rs2),
-    .jump      (jump)
+    .uses_rs2  (id_uses_rs2)
 );
 
 execute_stage execute_stage_inst (
     .clk        (clk),
     .rst_n      (rst_n),
     .stall      (ex_mem_stall),
-    .reg_rd1    (reg_rd1),
-    .reg_rd2    (reg_rd2),
+    .reg_rs1    (reg_rs1),
+    .reg_rs2    (reg_rs2),
     .id_ex_data (id_ex_data),
     .ex_mem_data(ex_mem_data),
-    .branch     (branch)
+    .alu_res    (alu_res),
+    .pc_imm     (pc_imm),
+    .pc_src     (pc_src)
 );
 
 memory_stage memory_stage_inst (
@@ -84,7 +88,8 @@ memory_stage memory_stage_inst (
     .stall      (mem_wb_stall),
     .ex_mem_data(ex_mem_data),
     .mem_wb_data(mem_wb_data),
-    .bus        (bus)
+    .bus        (bus),
+    .mem_busy   (mem_busy)
 );
 
 writeback_stage writeback_stage_inst (
@@ -100,8 +105,8 @@ register_file register_file_inst (
     .rd       (mem_wb_data.rd),
     .wr_data  (wr_data),
     .reg_write(mem_wb_data.reg_write),
-    .data1    (reg_rd1),
-    .data2    (reg_rd2)
+    .data1    (reg_rs1),
+    .data2    (reg_rs2)
 );
 
 hazard_unit hazard_unit_inst (
@@ -111,15 +116,16 @@ hazard_unit hazard_unit_inst (
     .mem_rd        (ex_mem_data.rd),
     .id_uses_rs1   (id_uses_rs1),
     .id_uses_rs2   (id_uses_rs2),
-    .ex_reg_write  (ex_mem_data.reg_write),
-    .mem_reg_write (mem_wb_data.reg_write),
-    .branch        (branch),
-    .jump          (jump),
+    .ex_reg_write  (id_ex_data.reg_write),
+    .mem_reg_write (ex_mem_data.reg_write),
+    .mem_busy      (mem_busy),
+    .pc_src        (pc_src),
     .pc_stall      (pc_stall),
     .if_id_stall   (if_id_stall),
     .id_ex_stall   (id_ex_stall),
     .ex_mem_stall  (ex_mem_stall),
     .mem_wb_stall  (mem_wb_stall),
+    .if_id_flush   (if_id_flush),
     .id_ex_flush   (id_ex_flush)
 );
 

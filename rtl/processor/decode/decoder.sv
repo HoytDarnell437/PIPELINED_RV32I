@@ -211,6 +211,7 @@ always_comb begin
         // SB SH SW
         OP_STORE: begin
             imm_sel = IMM_S_TYPE;
+            uses_rs2 = '1;
             reg_write = 1'b0;
             mem_wr = 1'b1;
             case (funct3)

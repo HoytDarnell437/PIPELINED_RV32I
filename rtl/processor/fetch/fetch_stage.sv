@@ -10,8 +10,9 @@ module fetch_stage import riscv_pkg::*; (
     input logic rst_n,
     input logic pc_stall,
     input logic if_id_stall,
+    input logic flush,
     input logic [1:0] pc_src,
-    input logic [31:0] imm,
+    input logic [31:0] pc_imm,
     input logic [31:0] alu_res,
     output if_id_data_t if_id_data
 );
@@ -22,8 +23,8 @@ pc pc_inst (
     .clk(clk),
     .rst_n(rst_n),
     .stall(pc_stall),
-    .pc_src(PCSRC_NEXT),
-    .imm(imm),
+    .pc_src(pc_src),
+    .pc_imm(pc_imm),
     .alu_res(alu_res),
     .addr(if_id_data_next.pc),
     .pc_plus_4(if_id_data_next.pc_4)
@@ -38,6 +39,7 @@ if_id_reg if_id_reg_inst (
     .clk(clk),
     .rst_n(rst_n),
     .stall(if_id_stall),
+    .flush(flush),
     .if_id_data_in(if_id_data_next),
     .if_id_data_out(if_id_data)
 );
