@@ -9,6 +9,7 @@ module memory_stage import riscv_pkg::*; (
     input logic clk,
     input logic rst_n,
     input logic stall,
+    input logic flush,
     input ex_mem_data_t ex_mem_data,
     output mem_wb_data_t mem_wb_data,
     output logic mem_busy,
@@ -45,6 +46,7 @@ mem_wb_reg mem_wb_reg_inst (
     .clk          (clk),
     .rst_n        (rst_n),
     .stall        (stall),
+    .flush        (flush),
     .mem_wb_data_in (mem_wb_data_next),
     .mem_wb_data_out (mem_wb_data)
 );

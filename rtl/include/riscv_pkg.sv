@@ -128,13 +128,13 @@ package riscv_pkg;
     localparam SECOND_HALF = 1'b1;
 
     // BYTE ENABLE
-    localparam EN_FIRST_BYTE = 4'b0001;
+    localparam EN_FIRST_BYTE  = 4'b0001;
     localparam EN_SECOND_BYTE = 4'b0010;
-    localparam EN_THIRD_BYTE = 4'b0100;
+    localparam EN_THIRD_BYTE  = 4'b0100;
     localparam EN_FOURTH_BYTE = 4'b1000;
-    localparam EN_FIRST_HALF = 4'b0011;
+    localparam EN_FIRST_HALF  = 4'b0011;
     localparam EN_SECOND_HALF = 4'b1100;
-    localparam EN_WORD = 4'b1111;
+    localparam EN_WORD        = 4'b1111;
 
     // PERIPHERAL SELECT
     localparam ACCESS_DATA_MEMORY = 2'b00;
@@ -146,7 +146,13 @@ package riscv_pkg;
     localparam SEL_BUTTONS  = 2'b01;
     localparam SEL_LEDS     = 2'b10;
 
+    // Data Forwarding Select
+    localparam FWSEL_REG = 2'b00;
+    localparam FWSEL_MEM = 2'b01;
+    localparam FWSEL_WB  = 2'b10;
+
 // -- Pipeline Port Structs -- 
+
     // Fetch -> Decode
     typedef struct packed {
         logic [31:0] pc;
@@ -160,6 +166,8 @@ package riscv_pkg;
         logic [31:0] pc_4;
         logic [4:0] rs1;
         logic [4:0] rs2;
+        logic uses_rs1;
+        logic uses_rs2;
         logic [4:0] rd;
         logic [3:0] alu_ctrl;
         logic alu_src_a;

@@ -12,8 +12,7 @@ module decode_stage import riscv_pkg::*; (
     input logic flush,
     input if_id_data_t if_id_data,
     output id_ex_data_t id_ex_data,
-    output logic uses_rs1,
-    output logic uses_rs2
+    output logic uses_rs1, uses_rs2
 );
 
 id_ex_data_t id_ex_data_next;
@@ -23,6 +22,8 @@ logic [2:0] imm_sel;
 always_comb begin
     id_ex_data_next.pc = if_id_data.pc;
     id_ex_data_next.pc_4 = if_id_data.pc_4;
+    id_ex_data_next.uses_rs1 = uses_rs1;
+    id_ex_data_next.uses_rs2 = uses_rs2;
 end
 
 decoder decoder_inst (

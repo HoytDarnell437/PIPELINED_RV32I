@@ -9,6 +9,8 @@ module execute_stage import riscv_pkg::*; (
     input logic clk,
     input logic rst_n,
     input logic stall,
+    input logic [1:0] rs1_fw_sel, rs2_fw_sel,
+    input logic [31:0] mem_rd_fw, wb_rd_fw,
     input logic [31:0] reg_rs1,
     input logic [31:0] reg_rs2,
     input id_ex_data_t id_ex_data,
@@ -20,10 +22,38 @@ module execute_stage import riscv_pkg::*; (
 
 ex_mem_data_t ex_mem_data_next;
 
+logic [31:0] reg_rs1_fw, reg_rs2_fw;
 logic [31:0] data1, data2;
 logic branch;
 
 always_comb begin
+    unique case (branch)
+        TAKE_BRANCH: pc_src = PCSRC_BRANCH;
+        IGNORE_BRANCH: pc_src = id_ex_data.pc_src;
+    endcase
+
+    case (rs1_fw_sel)
+        FWSEL_MEM: reg_rs1_fw = mem_rd_fw;
+        FWSEL_WB: reg_rs1_fw = wb_rd_fw;
+        default: reg_rs1_fw = reg_rs1;
+    endcase
+
+    case (rs2_fw_sel)
+        FWSEL_MEM: reg_rs2_fw = mem_rd_fw;
+        FWSEL_WB: reg_rs2_fw = wb_rd_fw;
+        default: reg_rs2_fw = reg_rs2;
+    endcase
+
+    unique case (id_ex_data.alu_src_a)
+        ALUSRC1_PC: data1 = id_ex_data.pc;
+        ALUSRC1_RS: data1 = reg_rs1_fw;
+    endcase
+    
+    unique case (id_ex_data.alu_src_b)
+        ALUSRC2_RS: data2 = reg_rs2_fw;
+        ALUSRC2_IMM: data2 = id_ex_data.imm;
+    endcase
+
     ex_mem_data_next.wr_src = id_ex_data.wr_src;
     ex_mem_data_next.rd = id_ex_data.rd;
     ex_mem_data_next.reg_write = id_ex_data.reg_write;
@@ -34,24 +64,9 @@ always_comb begin
     ex_mem_data_next.mem_rd = id_ex_data.mem_rd;
     ex_mem_data_next.mem_size = id_ex_data.mem_size;
     ex_mem_data_next.sign = id_ex_data.sign;
-    ex_mem_data_next.rs2_data = reg_rs2;
+    ex_mem_data_next.rs2_data = reg_rs2_fw;
 
     pc_imm = id_ex_data.pc + id_ex_data.imm;
-
-    unique case (branch)
-        TAKE_BRANCH: pc_src = PCSRC_BRANCH;
-        IGNORE_BRANCH: pc_src = id_ex_data.pc_src;
-    endcase
-
-    unique case (id_ex_data.alu_src_a)
-        ALUSRC1_PC: data1 = id_ex_data.pc;
-        ALUSRC1_RS: data1 = reg_rs1;
-    endcase
-    
-    unique case (id_ex_data.alu_src_b)
-        ALUSRC2_RS: data2 = reg_rs2;
-        ALUSRC2_IMM: data2 = id_ex_data.imm;
-    endcase
 end
 
 alu alu (

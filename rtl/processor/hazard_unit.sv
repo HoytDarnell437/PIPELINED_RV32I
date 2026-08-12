@@ -8,12 +8,18 @@
 module hazard_unit import riscv_pkg::*; (
     input logic [4:0] id_rs1,
     input logic [4:0] id_rs2,
+    input logic [4:0] ex_rs1,
+    input logic [4:0] ex_rs2,
     input logic [4:0] ex_rd,
     input logic [4:0] mem_rd,
+    input logic [4:0] wb_rd,
     input logic id_uses_rs1,
     input logic id_uses_rs2,
-    input logic ex_reg_write,
+    input logic ex_uses_rs1,
+    input logic ex_uses_rs2,
+    input logic ex_is_load,
     input logic mem_reg_write,
+    input logic wb_reg_write,
     input logic mem_busy,
     input logic [1:0] pc_src,
     output logic pc_stall,
@@ -22,20 +28,28 @@ module hazard_unit import riscv_pkg::*; (
     output logic ex_mem_stall,
     output logic mem_wb_stall,
     output logic if_id_flush,
-    output logic id_ex_flush
+    output logic id_ex_flush,
+    output logic mem_wb_flush,
+    output logic [1:0] rs1_fw_sel, rs2_fw_sel
 );
 
-logic hazard_rs1, hazard_rs2;
+logic load_use_hazard;
 
-assign hazard_rs1 = id_uses_rs1 && (id_rs1 != '0) && (
-    (ex_reg_write && (ex_rd == id_rs1)) ||
-    (mem_reg_write && (mem_rd == id_rs1))
+assign rs1_fw_sel = (!ex_uses_rs1 || (ex_rs1 == '0))      ? FWSEL_REG :
+                    (mem_reg_write  && (mem_rd  == ex_rs1)) ? FWSEL_MEM  :
+                    (wb_reg_write && (wb_rd == ex_rs1)) ? FWSEL_WB :
+                                                            FWSEL_REG;
+
+assign rs2_fw_sel = (!ex_uses_rs2 || (ex_rs2 == '0))      ? FWSEL_REG :
+                    (mem_reg_write  && (mem_rd  == ex_rs2)) ? FWSEL_MEM  :
+                    (wb_reg_write && (wb_rd == ex_rs2)) ? FWSEL_WB :
+                                                            FWSEL_REG;
+
+assign load_use_hazard = ex_is_load && ex_rd != '0 && (
+    (id_uses_rs1 && id_rs1 == ex_rd) ||
+    (id_uses_rs2 && id_rs2 == ex_rd)
 );
 
-assign hazard_rs2 = id_uses_rs2 && (id_rs2 != '0) && (
-    (ex_reg_write && (ex_rd == id_rs2)) ||
-    (mem_reg_write && (mem_rd == id_rs2))
-);
 
 always_comb begin
     pc_stall = '0;
@@ -46,6 +60,7 @@ always_comb begin
 
     if_id_flush = '0;
     id_ex_flush = '0;
+    mem_wb_flush = '0;
 
     if (mem_busy) begin
         pc_stall = '1;
@@ -56,12 +71,10 @@ always_comb begin
     end else if (pc_src != PCSRC_NEXT) begin
         if_id_flush = '1;
         id_ex_flush = '1;
-    end else begin
-        if (hazard_rs1 || hazard_rs2) begin
-            pc_stall = '1;
-            if_id_stall = '1;
-            id_ex_flush = '1;
-        end
+    end else if (load_use_hazard) begin
+        pc_stall = '1;
+        if_id_stall = '1;
+        id_ex_flush = '1;
     end
 end
 
