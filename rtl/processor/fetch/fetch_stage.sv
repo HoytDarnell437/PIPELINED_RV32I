@@ -19,6 +19,11 @@ module fetch_stage import riscv_pkg::*; (
 
 if_id_data_t if_id_data_next;
 
+logic imem_en;
+logic [31:0] next_pc;
+
+assign imem_en = ~pc_stall;
+
 pc pc_inst (
     .clk(clk),
     .rst_n(rst_n),
@@ -26,12 +31,15 @@ pc pc_inst (
     .pc_src(pc_src),
     .pc_imm(pc_imm),
     .alu_res(alu_res),
-    .addr(if_id_data_next.pc),
+    .next_addr(next_pc),
+    .addr(if_id_data_next.id_pc),
     .pc_plus_4(if_id_data_next.pc_4)
 );
 
 instruction_memory instruction_memory_inst (
-    .addr(if_id_data_next.pc),
+    .clk(clk),
+    .en(imem_en),
+    .addr(next_pc),
     .instr(if_id_data_next.instr)
 );
 

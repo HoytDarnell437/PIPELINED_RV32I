@@ -14,22 +14,24 @@ input logic stall,
 input logic [1:0] pc_src,
 input logic [31:0] pc_imm,
 input logic [31:0] alu_res,
+output logic [31:0] next_addr,
 output logic [31:0] addr,
 output logic [31:0] pc_plus_4
 );
 
-// -- signal declaration --
-logic [31:0] next_addr;
-
 // -- combinational logic --
 always_comb begin
     pc_plus_4 = addr + 4;
-    next_addr = 0;
-    case (pc_src)
-        PCSRC_BRANCH: next_addr = pc_imm;
-        PCSRC_ALU: next_addr = alu_res;
-        default: next_addr = pc_plus_4;
-    endcase
+    if (!rst_n) begin
+        next_addr = 0;
+    end else begin
+        next_addr = 0;
+        case (pc_src)
+            PCSRC_BRANCH: next_addr = pc_imm;
+            PCSRC_ALU: next_addr = alu_res;
+            default: next_addr = pc_plus_4;
+        endcase
+    end
 end
 
 // -- sequential logic --

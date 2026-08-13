@@ -155,14 +155,14 @@ package riscv_pkg;
 
     // Fetch -> Decode
     typedef struct packed {
-        logic [31:0] pc;
+        logic [31:0] id_pc;
         logic [31:0] pc_4;
         logic [31:0] instr;
     } if_id_data_t;
     
     // Decode -> Execute
     typedef struct packed {
-        logic [31:0] pc;
+        logic [31:0] ex_pc;
         logic [31:0] pc_4;
         logic [4:0] rs1;
         logic [4:0] rs2;
@@ -184,6 +184,7 @@ package riscv_pkg;
 
     // Execute -> Memory
     typedef struct packed {
+        logic [31:0] mem_pc;
         logic [31:0] pc_4;
         logic [31:0] alu_res;
         logic mem_wr;
@@ -198,6 +199,7 @@ package riscv_pkg;
 
     // Memory -> Writeback
     typedef struct packed {
+        logic [31:0] wb_pc;
         logic [31:0] alu_res;
         logic [31:0] rd_data;
         logic [31:0] pc_4;

@@ -9,19 +9,22 @@
 module instruction_memory #(
 localparam INSTRUCTION_COUNT = 1024
 )(
+input logic clk,
+input logic en,
 input logic [31:0] addr,
 output logic [31:0] instr
 );
 
-// -- signal declaration --
 logic [31:0] rom [0:INSTRUCTION_COUNT-1];
 
-// -- combinational logic --
-assign instr = rom[addr[31:2]];
-
-// -- include machine code --
 initial begin
     $readmemh("instructions.hex", rom);
+end
+
+always_ff @(posedge clk) begin
+    if (en) begin
+        instr <= rom[addr[31:2]];
+    end
 end
 
 endmodule // instruction_memory

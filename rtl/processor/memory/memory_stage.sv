@@ -26,6 +26,7 @@ always_comb begin
     mem_wb_data_next.alu_res = ex_mem_data.alu_res;
     mem_wb_data_next.rd = ex_mem_data.rd;
     mem_wb_data_next.reg_write = ex_mem_data.reg_write;
+    mem_wb_data_next.wb_pc = ex_mem_data.mem_pc;
     mem_wb_data_next.pc_4 = ex_mem_data.pc_4;
 
     mem_busy = (ex_mem_data.mem_rd || ex_mem_data.mem_wr) && !bus.ready;

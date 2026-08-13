@@ -45,7 +45,7 @@ always_comb begin
     endcase
 
     unique case (id_ex_data.alu_src_a)
-        ALUSRC1_PC: data1 = id_ex_data.pc;
+        ALUSRC1_PC: data1 = id_ex_data.ex_pc;
         ALUSRC1_RS: data1 = reg_rs1_fw;
     endcase
     
@@ -57,6 +57,7 @@ always_comb begin
     ex_mem_data_next.wr_src = id_ex_data.wr_src;
     ex_mem_data_next.rd = id_ex_data.rd;
     ex_mem_data_next.reg_write = id_ex_data.reg_write;
+    ex_mem_data_next.mem_pc = id_ex_data.ex_pc;
     ex_mem_data_next.pc_4 = id_ex_data.pc_4;
     ex_mem_data_next.alu_res = alu_res;
 
@@ -66,7 +67,7 @@ always_comb begin
     ex_mem_data_next.sign = id_ex_data.sign;
     ex_mem_data_next.rs2_data = reg_rs2_fw;
 
-    pc_imm = id_ex_data.pc + id_ex_data.imm;
+    pc_imm = id_ex_data.ex_pc + id_ex_data.imm;
 end
 
 alu alu (

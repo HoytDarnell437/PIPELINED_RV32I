@@ -20,7 +20,7 @@ id_ex_data_t id_ex_data_next;
 logic [2:0] imm_sel;
 
 always_comb begin
-    id_ex_data_next.pc = if_id_data.pc;
+    id_ex_data_next.ex_pc = if_id_data.id_pc;
     id_ex_data_next.pc_4 = if_id_data.pc_4;
     id_ex_data_next.uses_rs1 = uses_rs1;
     id_ex_data_next.uses_rs2 = uses_rs2;
