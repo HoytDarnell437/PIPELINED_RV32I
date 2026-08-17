@@ -9,12 +9,14 @@ module execute_stage import riscv_pkg::*; (
     input logic clk,
     input logic rst_n,
     input logic stall,
+    input logic flush,
     input logic [1:0] rs1_fw_sel, rs2_fw_sel,
     input logic [31:0] mem_rd_fw, wb_rd_fw,
     input logic [31:0] reg_rs1,
     input logic [31:0] reg_rs2,
     input id_ex_data_t id_ex_data,
     output ex_mem_data_t ex_mem_data,
+    output logic mem_rd,
     output logic [31:0] alu_res,
     output logic [31:0] pc_imm,
     output logic [1:0] pc_src
@@ -25,8 +27,14 @@ ex_mem_data_t ex_mem_data_next;
 logic [31:0] reg_rs1_fw, reg_rs2_fw;
 logic [31:0] data1, data2;
 logic branch;
+logic branch_taken;
 
 always_comb begin
+    unique case (id_ex_data.is_branch)
+        0: branch = '0;
+        1: branch = branch_taken;
+    endcase
+
     unique case (branch)
         TAKE_BRANCH: pc_src = PCSRC_BRANCH;
         IGNORE_BRANCH: pc_src = id_ex_data.pc_src;
@@ -68,20 +76,28 @@ always_comb begin
     ex_mem_data_next.rs2_data = reg_rs2_fw;
 
     pc_imm = id_ex_data.ex_pc + id_ex_data.imm;
+    mem_rd = id_ex_data.mem_rd;
 end
 
-alu alu (
+alu alu_inst (
     .alu_ctrl(id_ex_data.alu_ctrl),
     .data1   (data1),
     .data2   (data2),
-    .alu_res (alu_res),
-    .branch  (branch)
+    .alu_res (alu_res)
+);
+
+bu bu_inst (
+    .bu_ctrl(id_ex_data.bu_ctrl),
+    .data1  (data1),
+    .data2  (data2),
+    .branch (branch_taken)
 );
 
 ex_mem_reg ex_mem_reg_inst (
     .clk             (clk),
     .rst_n           (rst_n),
     .stall           (stall),
+    .flush           (flush),
     .ex_mem_data_in  (ex_mem_data_next),
     .ex_mem_data_out (ex_mem_data)
 );

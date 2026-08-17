@@ -77,12 +77,14 @@ package riscv_pkg;
     localparam ALU_SRL  = 4'b0111;
     localparam ALU_SRA  = 4'b1000;
     localparam ALU_SUB  = 4'b1001;
-    localparam ALU_BEQ  = 4'b1010;
-    localparam ALU_BNE  = 4'b1011;
-    localparam ALU_BLT  = 4'b1100;
-    localparam ALU_BGE  = 4'b1101;
-    localparam ALU_BLTU = 4'b1110;
-    localparam ALU_BGEU = 4'b1111;
+
+    // BU Control
+    localparam BU_BEQ  = 3'b000;
+    localparam BU_BNE  = 3'b001;
+    localparam BU_BLT  = 3'b010;
+    localparam BU_BGE  = 3'b011;
+    localparam BU_BLTU = 3'b100;
+    localparam BU_BGEU = 3'b101;
 
     // WR_SRC
     localparam WRSRC_ALU  = 2'b00;
@@ -92,7 +94,8 @@ package riscv_pkg;
     // PC_SRC
     localparam PCSRC_NEXT   = 2'b00;
     localparam PCSRC_BRANCH = 2'b01;
-    localparam PCSRC_ALU    = 2'b10;
+    localparam PCSRC_JALR   = 2'b10;
+    localparam PCSRC_JAL    = 2'b11;
 
     // IMM_SEL
     localparam IMM_I_TYPE = 3'b000;
@@ -170,6 +173,8 @@ package riscv_pkg;
         logic uses_rs2;
         logic [4:0] rd;
         logic [3:0] alu_ctrl;
+        logic [2:0] bu_ctrl;
+        logic is_branch;
         logic alu_src_a;
         logic alu_src_b;
         logic [31:0] imm;

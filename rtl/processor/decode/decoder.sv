@@ -14,6 +14,8 @@ output logic [4:0] rd,
 output logic uses_rs1,
 output logic uses_rs2,
 output logic [3:0] alu_ctrl,
+output logic [2:0] bu_ctrl,
+output logic is_branch,
 output logic alu_src_a,
 output logic alu_src_b,
 output logic reg_write,
@@ -38,6 +40,8 @@ always_comb begin
     rs2 = instr[24:20];
     rd = instr[11:7];
     alu_ctrl = ALU_ADD;
+    bu_ctrl = BU_BEQ;
+    is_branch = '0;
     alu_src_a = ALUSRC1_RS;
     alu_src_b = ALUSRC2_IMM;
     uses_rs1 = '1;
@@ -96,7 +100,7 @@ always_comb begin
         end
         OP_JALR: begin
             imm_sel = IMM_I_TYPE;
-            pc_src = PCSRC_ALU;
+            pc_src = PCSRC_JALR;
             wr_src = WRSRC_PC;
         end
         OP_FENCE: begin
@@ -121,9 +125,6 @@ always_comb begin
             wr_src = WRSRC_READ;
             mem_rd = 1'b1;
             case (funct3)
-                F3_LB: begin
-                    // Default values sufficient
-                end
                 F3_LH: begin
                     mem_size = SIZE_H;
                 end
@@ -136,6 +137,10 @@ always_comb begin
                 F3_LHU: begin
                     mem_size = SIZE_H;
                     sign = 1'b0;
+                end
+                default: begin
+                    mem_size = SIZE_B;
+                    sign = '1;
                 end
             endcase
         end
@@ -183,28 +188,32 @@ always_comb begin
         // BEQ BNE BLT BGE BLTU BGEU
         OP_B_TYPE: begin
             alu_src_b = ALUSRC2_RS;
+            is_branch = '1;
             uses_rs2 = '1;
             imm_sel = IMM_B_TYPE;
             reg_write = 1'b0;
             pc_src = PCSRC_NEXT;
             case (funct3)
                 F3_BEQ: begin
-                    alu_ctrl = ALU_BEQ;
+                    bu_ctrl = BU_BEQ;
                 end
                 F3_BNE: begin
-                    alu_ctrl = ALU_BNE;
+                    bu_ctrl = BU_BNE;
                 end
                 F3_BLT: begin
-                    alu_ctrl = ALU_BLT;
+                    bu_ctrl = BU_BLT;
                 end
                 F3_BGE: begin
-                    alu_ctrl = ALU_BGE;
+                    bu_ctrl = BU_BGE;
                 end
                 F3_BLTU: begin
-                    alu_ctrl = ALU_BLTU;
+                    bu_ctrl = BU_BLTU;
                 end
                 F3_BGEU: begin
-                    alu_ctrl = ALU_BGEU;
+                    bu_ctrl = BU_BGEU;
+                end
+                default: begin
+                    bu_ctrl = '0;
                 end
             endcase
         end
@@ -215,15 +224,13 @@ always_comb begin
             reg_write = 1'b0;
             mem_wr = 1'b1;
             case (funct3)
-                F3_SB: begin
-                    // Default values sufficient
-                end
                 F3_SH: begin
                     mem_size = SIZE_H;
                 end
                 F3_SW: begin
                     mem_size = SIZE_W;
                 end
+                default: mem_size = SIZE_B;
             endcase
         end
         OP_LUI: begin
@@ -239,7 +246,7 @@ always_comb begin
             imm_sel = IMM_J_TYPE;
             alu_src_a = ALUSRC1_PC;
             uses_rs1 = '0;
-            pc_src = PCSRC_BRANCH;
+            pc_src = PCSRC_JAL;
             wr_src = WRSRC_PC;
         end
     endcase
