@@ -11,7 +11,7 @@
 
 module address_decoder import riscv_pkg::*; (
 input logic [29:0] address,
-output logic [1:0] peripheral_sel
+output logic [2:0] peripheral_sel
 );
 
 always_comb begin
@@ -21,10 +21,14 @@ always_comb begin
     if (!address[29]) begin
         peripheral_sel = ACCESS_DATA_MEMORY;
     end else
-        unique case (address[1:0])
+        unique case (address[2:0])
             SEL_SWITCHES: peripheral_sel = ACCESS_SWITCHES;
             SEL_BUTTONS: peripheral_sel = ACCESS_BUTTONS;
             SEL_LEDS: peripheral_sel = ACCESS_LEDS;
+            SEL_JA: peripheral_sel = ACCESS_JA;
+            SEL_JB: peripheral_sel = ACCESS_JB;
+            SEL_JC: peripheral_sel = ACCESS_JC;
+            SEL_JD: peripheral_sel = ACCESS_JD;
         endcase
 
 end

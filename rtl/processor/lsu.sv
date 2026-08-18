@@ -29,10 +29,10 @@ logic [3:0] byte_en;
 
 always_comb begin
     bus.en = ~ex_mem_stall;
-    bus.wr_addr = mem_addr[31:2];
+    bus.wr_addr = mem_addr;
     bus.wr = wr;
     bus.byte_en = byte_en;
-    bus.rd_addr = ex_addr[31:2];
+    bus.rd_addr = ex_addr;
     bus.rd = rd;
     mem_ready = bus.ready;
 end

@@ -19,10 +19,10 @@ input logic sys_rst_n,
 input logic [3:0] buttons,
 input logic [3:0] switches,
 output logic [3:0] leds,
-output logic [7:0] ja,
-output logic [7:0] jb,
-output logic [7:0] jc,
-output logic [7:0] jd,
+inout logic [7:0] ja,
+inout logic [7:0] jb,
+inout logic [7:0] jc,
+inout logic [7:0] jd,
 output logic locked
 );
 
@@ -31,14 +31,20 @@ logic clk_sys;
 
 logic rst_n;
 
+logic [3:0] pmod_wr_en;
+logic [7:0] pmod_wr_data;
+logic [1:0] pmod_reg_addr;
+logic [31:0] pmod_rd_data;
+logic [1:0] pmod_reg_addr_rd;
+
 logic mem_rd;
 logic mem_wr;
 logic mem_ready;
 logic [31:0] mem_rd_data;
 
-logic [1:0] rd_peripheral_sel;
-logic [1:0] rd_peripheral_sel_reg;
-logic [1:0] wr_peripheral_sel;
+logic [2:0] rd_peripheral_sel;
+logic [2:0] rd_peripheral_sel_reg;
+logic [2:0] wr_peripheral_sel;
 
 logic [3:0] led_reg;
 
@@ -47,8 +53,10 @@ always_comb begin
     mem_wr = '0;
     bus.rd_data = '0;
     bus.ready = '0;
+    pmod_wr_en = '0;
 
     leds = led_reg;
+    pmod_wr_data = bus.wr_data[7:0];
 
     if (rd_peripheral_sel == ACCESS_DATA_MEMORY) begin
         mem_rd = bus.rd;
@@ -63,6 +71,18 @@ always_comb begin
     end else if (rd_peripheral_sel_reg == ACCESS_BUTTONS) begin
         bus.rd_data = { 28'b0 , buttons };
         bus.ready = '1;
+    end else if (rd_peripheral_sel_reg == ACCESS_JA) begin
+        bus.rd_data = { 24'b0 , pmod_rd_data[7:0] };
+        bus.ready = '1;
+    end else if (rd_peripheral_sel_reg == ACCESS_JB) begin
+        bus.rd_data = { 24'b0 , pmod_rd_data[15:8] };
+        bus.ready = '1;
+    end else if (rd_peripheral_sel_reg == ACCESS_JC) begin
+        bus.rd_data = { 24'b0 , pmod_rd_data[23:16] };
+        bus.ready = '1;
+    end else if (rd_peripheral_sel_reg == ACCESS_JD) begin
+        bus.rd_data = { 24'b0 , pmod_rd_data[31:24] };
+        bus.ready = '1;
     end
 
     unique case (wr_peripheral_sel)
@@ -73,15 +93,39 @@ always_comb begin
         ACCESS_LEDS: begin
             bus.ready = '1;
         end
+        ACCESS_JA: begin
+            pmod_wr_en = 4'b0001;
+            bus.ready = '1;
+        end
+        ACCESS_JB: begin
+            pmod_wr_en = 4'b0010;
+            bus.ready = '1;
+        end
+        ACCESS_JC: begin
+            pmod_wr_en = 4'b0100;
+            bus.ready = '1;
+        end
+        ACCESS_JD: begin
+            pmod_wr_en = 4'b1000;
+            bus.ready = '1;
+        end
     endcase
+
+    if (pmod_wr_en != '0) begin
+        pmod_reg_addr = bus.wr_addr[1:0];
+    end else begin
+        pmod_reg_addr = pmod_reg_addr_rd;
+    end
 end
 
 always_ff @(posedge clk_sys) begin
     if (!rst_n) begin
         led_reg <= '0;
         rd_peripheral_sel_reg <= '0;
+        pmod_reg_addr_rd <= '0;
     end else begin
         rd_peripheral_sel_reg <= rd_peripheral_sel;
+        pmod_reg_addr_rd <= bus.rd_addr[1:0];
 
         if (wr_peripheral_sel == ACCESS_LEDS) begin
             led_reg <= bus.wr_data[3:0];
@@ -103,6 +147,16 @@ sync_reset sync_reset_inst (
     .rst_n(rst_n)
 );
 
+pmod_gpio_controller pmod_gpio_controller_inst[3:0] (
+    .clk     (clk_sys),
+    .rst_n   (rst_n),
+    .wr_en   (pmod_wr_en),
+    .pmod_io ({jd, jc, jb, ja}),
+    .wr_data (pmod_wr_data),
+    .reg_addr(pmod_reg_addr),
+    .rd_data (pmod_rd_data)
+);
+
 data_memory data_memory_inst (
     .clk(clk_sys),
     .rst_n(rst_n),
@@ -111,19 +165,19 @@ data_memory data_memory_inst (
     .rd(mem_rd),
     .byte_en(bus.byte_en),
     .wr_data(bus.wr_data),
-    .wr_addr(bus.wr_addr),
-    .rd_addr(bus.rd_addr),
+    .wr_addr(bus.wr_addr[31:2]),
+    .rd_addr(bus.rd_addr[31:2]),
     .rd_data(mem_rd_data),
     .ready(mem_ready)
 );
 
 address_decoder rd_address_decoder_inst (
-    .address(bus.rd_addr),
+    .address(bus.rd_addr[31:2]),
     .peripheral_sel(rd_peripheral_sel)
 );
 
 address_decoder wr_address_decoder_inst (
-    .address(bus.wr_addr),
+    .address(bus.wr_addr[31:2]),
     .peripheral_sel(wr_peripheral_sel)
 );
 

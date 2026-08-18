@@ -140,19 +140,32 @@ package riscv_pkg;
     localparam EN_WORD        = 4'b1111;
 
     // PERIPHERAL SELECT
-    localparam ACCESS_DATA_MEMORY = 2'b00;
-    localparam ACCESS_SWITCHES    = 2'b01;
-    localparam ACCESS_BUTTONS     = 2'b10;
-    localparam ACCESS_LEDS        = 2'b11;
+    localparam ACCESS_DATA_MEMORY = 3'b000;
+    localparam ACCESS_SWITCHES    = 3'b001;
+    localparam ACCESS_BUTTONS     = 3'b010;
+    localparam ACCESS_LEDS        = 3'b011;
+    localparam ACCESS_JA          = 3'b100;
+    localparam ACCESS_JB          = 3'b101;
+    localparam ACCESS_JC          = 3'b110;
+    localparam ACCESS_JD          = 3'b111;
 
-    localparam SEL_SWITCHES = 2'b00;
-    localparam SEL_BUTTONS  = 2'b01;
-    localparam SEL_LEDS     = 2'b10;
+    localparam SEL_SWITCHES = 3'b000;
+    localparam SEL_BUTTONS  = 3'b001;
+    localparam SEL_LEDS     = 3'b010;
+    localparam SEL_JA       = 3'b011;
+    localparam SEL_JB       = 3'b100;
+    localparam SEL_JC       = 3'b101;
+    localparam SEL_JD       = 3'b110;
 
     // Data Forwarding Select
     localparam FWSEL_REG = 2'b00;
     localparam FWSEL_MEM = 2'b01;
     localparam FWSEL_WB  = 2'b10;
+
+    // Register Address for mmio
+    localparam REGADDR_IN  = 2'b00;
+    localparam REGADDR_OUT = 2'b01;
+    localparam REGADDR_DIR = 2'b10;
 
 // -- Pipeline Port Structs -- 
 

@@ -7,6 +7,7 @@
 // Timing: Asserts rst_n asynchronously after invert_rst is asserted and
 // deasserts rst_n synchronously with the system clock.
 //------------------------------------------------------------------------------
+
 module sync_reset (
 input logic clk,
 input logic invert_rst,

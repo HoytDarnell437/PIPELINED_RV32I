@@ -10,10 +10,10 @@ interface mmio_bus_if (
     input logic rst_n
 );
 
-    logic [29:0] wr_addr;
+    logic [31:0] wr_addr;
     logic [31:0] wr_data;
     logic wr;
-    logic [29:0] rd_addr;
+    logic [31:0] rd_addr;
     logic [31:0] rd_data;
     logic rd;
     logic [3:0] byte_en;
