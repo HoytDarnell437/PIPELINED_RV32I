@@ -167,6 +167,12 @@ package riscv_pkg;
     localparam REGADDR_OUT = 2'b01;
     localparam REGADDR_DIR = 2'b10;
 
+    // Branch Saturation Counter Values
+    localparam STRONGLY_NOT_TAKEN = 2'b00;
+    localparam NOT_TAKEN = 2'b01;
+    localparam TAKEN = 2'b10;
+    localparam STRONGLY_TAKEN = 2'b11;
+
 // -- Pipeline Port Structs -- 
 
     // Fetch -> Decode

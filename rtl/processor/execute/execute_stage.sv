@@ -19,7 +19,8 @@ module execute_stage import riscv_pkg::*; (
     output logic mem_rd,
     output logic [31:0] alu_res,
     output logic [31:0] branch_target,
-    output logic [1:0] pc_src
+    output logic [1:0] pc_src,
+    output logic take_branch
 );
 
 ex_mem_data_t ex_mem_data_next;
@@ -28,7 +29,6 @@ logic [31:0] reg_rs1_fw, reg_rs2_fw;
 logic [31:0] data1, data2;
 logic [31:0] pc_imm;
 logic branch;
-logic take_branch;
 
 always_comb begin
     pc_imm = id_ex_data.ex_pc + id_ex_data.imm;

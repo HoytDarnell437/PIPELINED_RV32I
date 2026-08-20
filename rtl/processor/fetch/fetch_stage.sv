@@ -13,6 +13,9 @@ module fetch_stage import riscv_pkg::*; (
     input logic flush,
     input logic [1:0] id_pc_src,
     input logic [1:0] ex_pc_src,
+    input logic [31:0] ex_pc,
+    input logic ex_is_branch,
+    input logic ex_take_branch,
     input logic [31:0] ex_branch_target,
     input logic [31:0] jalr_target,
     input logic [31:0] jal_target,
@@ -67,9 +70,15 @@ instruction_memory instruction_memory_inst (
 );
 
 bpu bpu_inst (
-    .instr      (if_id_data_next.instr),
-    .is_branch  (if_id_data_next.is_branch),
-    .take_branch(if_id_data_next.take_branch)
+    .clk           (clk),
+    .rst_n         (rst_n),
+    .if_addr       (if_id_data_next.id_pc),
+    .if_instr      (if_id_data_next.instr),
+    .ex_addr       (ex_pc),
+    .ex_is_branch  (ex_is_branch),
+    .ex_take_branch(ex_take_branch),
+    .if_is_branch  (if_id_data_next.is_branch),
+    .if_take_branch(if_id_data_next.take_branch)
 );
 
 if_id_reg if_id_reg_inst (

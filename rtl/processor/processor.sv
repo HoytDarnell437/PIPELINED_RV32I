@@ -43,6 +43,8 @@ logic [31:0] jal_target;
 logic [31:0] alu_res;
 logic [31:0] ex_branch_target;
 
+logic ex_take_branch;
+
 logic [31:0] mem_wr_addr;
 logic mem_rd;
 logic mem_wr;
@@ -64,8 +66,11 @@ fetch_stage fetch_stage_inst (
     .pc_stall     (pc_stall),
     .if_id_stall  (if_id_stall),
     .flush        (if_id_flush),
-    .id_pc_src       (id_pc_src),
+    .id_pc_src    (id_pc_src),
     .ex_pc_src    (ex_pc_src),
+    .ex_pc        (id_ex_data.ex_pc),
+    .ex_is_branch (id_ex_data.is_branch),
+    .ex_take_branch(ex_take_branch),
     .ex_branch_target(ex_branch_target),
     .jalr_target  (alu_res),
     .jal_target   (jal_target),
@@ -101,7 +106,8 @@ execute_stage execute_stage_inst (
     .mem_rd       (mem_rd),
     .alu_res      (alu_res),
     .branch_target(ex_branch_target),
-    .pc_src       (ex_pc_src)
+    .pc_src       (ex_pc_src),
+    .take_branch  (ex_take_branch)
 );
 
 memory_stage memory_stage_inst (
