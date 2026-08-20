@@ -15,7 +15,6 @@ output logic uses_rs1,
 output logic uses_rs2,
 output logic [3:0] alu_ctrl,
 output logic [2:0] bu_ctrl,
-output logic is_branch,
 output logic alu_src_a,
 output logic alu_src_b,
 output logic reg_write,
@@ -41,7 +40,6 @@ always_comb begin
     rd = instr[11:7];
     alu_ctrl = ALU_ADD;
     bu_ctrl = BU_BEQ;
-    is_branch = '0;
     alu_src_a = ALUSRC1_RS;
     alu_src_b = ALUSRC2_IMM;
     uses_rs1 = '1;
@@ -188,7 +186,6 @@ always_comb begin
         // BEQ BNE BLT BGE BLTU BGEU
         OP_B_TYPE: begin
             alu_src_b = ALUSRC2_RS;
-            is_branch = '1;
             uses_rs2 = '1;
             imm_sel = IMM_B_TYPE;
             reg_write = 1'b0;

@@ -19,7 +19,7 @@ always_comb begin
         IMM_B_TYPE: imm = { {19{instr[31]}} , instr[31] , instr[7] , instr[30:25] , instr[11:8] , 1'b0 };
         IMM_U_TYPE: imm = { instr[31:12] , 12'b0 };
         IMM_J_TYPE: imm = { {12{instr[31]}} , instr[19:12] , instr[20] , instr[30:21] , 1'b0 };
-        IMM_SHIFT: imm = { 17'b0 , instr[24:20] };
+        IMM_SHIFT: imm = { 27'b0 , instr[24:20] };
         default: imm = 32'b0;
     endcase
 end

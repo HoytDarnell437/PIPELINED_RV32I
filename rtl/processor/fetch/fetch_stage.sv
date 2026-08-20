@@ -13,7 +13,7 @@ module fetch_stage import riscv_pkg::*; (
     input logic flush,
     input logic [1:0] id_pc_src,
     input logic [1:0] ex_pc_src,
-    input logic [31:0] branch_target,
+    input logic [31:0] ex_branch_target,
     input logic [31:0] jalr_target,
     input logic [31:0] jal_target,
     output if_id_data_t if_id_data
@@ -24,16 +24,23 @@ if_id_data_t if_id_data_next;
 logic [1:0] pc_src;
 logic imem_en;
 logic [31:0] next_pc;
+logic [31:0] branch_target;
 
 assign imem_en = ~pc_stall;
 
 always_comb begin
+    branch_target = '0;
+
     if (ex_pc_src == PCSRC_BRANCH) begin
         pc_src = PCSRC_BRANCH;
+        branch_target = ex_branch_target;
     end else if (ex_pc_src == PCSRC_JALR) begin
         pc_src = PCSRC_JALR;
     end else if (id_pc_src == PCSRC_JAL) begin
         pc_src = PCSRC_JAL;
+    end else if (if_id_data_next.is_branch && if_id_data_next.take_branch) begin
+        pc_src = PCSRC_BRANCH;
+        branch_target = if_id_data_next.id_pc + { {19{if_id_data_next.instr[31]}} , if_id_data_next.instr[31] , if_id_data_next.instr[7] , if_id_data_next.instr[30:25] , if_id_data_next.instr[11:8] , 1'b0 };
     end else begin
         pc_src = PCSRC_NEXT;
     end
@@ -57,6 +64,12 @@ instruction_memory instruction_memory_inst (
     .en(imem_en),
     .addr(next_pc),
     .instr(if_id_data_next.instr)
+);
+
+bpu bpu_inst (
+    .instr      (if_id_data_next.instr),
+    .is_branch  (if_id_data_next.is_branch),
+    .take_branch(if_id_data_next.take_branch)
 );
 
 if_id_reg if_id_reg_inst (

@@ -24,6 +24,8 @@ logic [2:0] imm_sel;
 always_comb begin
     id_ex_data_next.ex_pc = if_id_data.id_pc;
     id_ex_data_next.pc_4 = if_id_data.pc_4;
+    id_ex_data_next.is_branch = if_id_data.is_branch;
+    id_ex_data_next.take_branch = if_id_data.take_branch;
     id_ex_data_next.uses_rs1 = uses_rs1;
     id_ex_data_next.uses_rs2 = uses_rs2;
 
@@ -40,7 +42,6 @@ decoder decoder_inst (
     .uses_rs2 (uses_rs2),
     .alu_ctrl (id_ex_data_next.alu_ctrl),
     .bu_ctrl (id_ex_data_next.bu_ctrl),
-    .is_branch(id_ex_data_next.is_branch),
     .alu_src_a(id_ex_data_next.alu_src_a),
     .alu_src_b(id_ex_data_next.alu_src_b),
     .reg_write(id_ex_data_next.reg_write),

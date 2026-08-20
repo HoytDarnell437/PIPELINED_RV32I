@@ -174,6 +174,8 @@ package riscv_pkg;
         logic [31:0] id_pc;
         logic [31:0] pc_4;
         logic [31:0] instr;
+        logic is_branch;
+        logic take_branch;
     } if_id_data_t;
     
     // Decode -> Execute
@@ -188,6 +190,7 @@ package riscv_pkg;
         logic [3:0] alu_ctrl;
         logic [2:0] bu_ctrl;
         logic is_branch;
+        logic take_branch;
         logic alu_src_a;
         logic alu_src_b;
         logic [31:0] imm;

@@ -41,7 +41,7 @@ logic [1:0] id_pc_src;
 logic [1:0] ex_pc_src;
 logic [31:0] jal_target;
 logic [31:0] alu_res;
-logic [31:0] branch_target;
+logic [31:0] ex_branch_target;
 
 logic [31:0] mem_wr_addr;
 logic mem_rd;
@@ -66,7 +66,7 @@ fetch_stage fetch_stage_inst (
     .flush        (if_id_flush),
     .id_pc_src       (id_pc_src),
     .ex_pc_src    (ex_pc_src),
-    .branch_target(branch_target),
+    .ex_branch_target(ex_branch_target),
     .jalr_target  (alu_res),
     .jal_target   (jal_target),
     .if_id_data   (if_id_data)
@@ -86,22 +86,22 @@ decode_stage decode_stage_inst (
 );
 
 execute_stage execute_stage_inst (
-    .clk        (clk),
-    .rst_n      (rst_n),
-    .stall      (ex_mem_stall),
-    .flush      (ex_mem_flush),
-    .rs1_fw_sel (rs1_fw_sel),
-    .rs2_fw_sel (rs2_fw_sel),
-    .mem_rd_fw   (ex_mem_data.alu_res),
-    .wb_rd_fw  (wb_wr_data),
-    .reg_rs1    (reg_rs1),
-    .reg_rs2    (reg_rs2),
-    .id_ex_data (id_ex_data),
-    .ex_mem_data(ex_mem_data),
-    .mem_rd     (mem_rd),
-    .alu_res    (alu_res),
-    .pc_imm     (branch_target),
-    .pc_src     (ex_pc_src)
+    .clk          (clk),
+    .rst_n        (rst_n),
+    .stall        (ex_mem_stall),
+    .flush        (ex_mem_flush),
+    .rs1_fw_sel   (rs1_fw_sel),
+    .rs2_fw_sel   (rs2_fw_sel),
+    .mem_rd_fw    (ex_mem_data.alu_res),
+    .wb_rd_fw     (wb_wr_data),
+    .reg_rs1      (reg_rs1),
+    .reg_rs2      (reg_rs2),
+    .id_ex_data   (id_ex_data),
+    .ex_mem_data  (ex_mem_data),
+    .mem_rd       (mem_rd),
+    .alu_res      (alu_res),
+    .branch_target(ex_branch_target),
+    .pc_src       (ex_pc_src)
 );
 
 memory_stage memory_stage_inst (
