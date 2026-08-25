@@ -28,18 +28,26 @@ module hazard_unit import riscv_pkg::*; (
     input logic [1:0] ex_pc_src,
     output logic pc_stall,
     output logic if_id_stall,
-    output logic id_ex_stall,
-    output logic ex_mem_stall,
+    output logic id_ex_stall_pc,
+    output logic id_ex_stall_dp,
+    output logic ex_mem_stall_lsu,
+    output logic ex_mem_stall_haz,
+    output logic ex_mem_stall_dp,
     output logic mem_wb_stall,
     output logic if_id_flush,
-    output logic id_ex_flush,
-    output logic ex_mem_flush,
+    output logic id_ex_flush_pc,
+    output logic id_ex_flush_dp,
+    output logic ex_mem_flush_lsu,
+    output logic ex_mem_flush_haz,
+    output logic ex_mem_flush_dp,
     output logic mem_wb_flush,
     output logic [1:0] rs1_fw_sel, rs2_fw_sel
 );
 
 logic load_use_hazard;
 logic write_before_read;
+logic ex_branch_jalr;
+logic id_jal;
 
 assign rs1_fw_sel = (!ex_uses_rs1 || (ex_rs1 == '0))      ? FWSEL_REG :
                     (mem_reg_write  && (mem_rd  == ex_rs1)) ? FWSEL_MEM  :
@@ -58,40 +66,24 @@ assign load_use_hazard = ex_is_load && ex_rd != '0 && (
 
 assign write_before_read = ex_is_load && mem_is_store && (ex_addr == mem_addr);
 
+assign ex_branch_jalr = ex_pc_src == PCSRC_JALR || ex_pc_src == PCSRC_BRANCH;
+assign id_jal = id_pc_src == PCSRC_JAL;
 
-always_comb begin
-    pc_stall = '0;
-    if_id_stall = '0;
-    id_ex_stall = '0;
-    ex_mem_stall = '0;
-    mem_wb_stall = '0;
+assign pc_stall = mem_busy || (!ex_branch_jalr && !id_jal && (write_before_read || load_use_hazard));
+assign if_id_stall = mem_busy || (!ex_branch_jalr && !id_jal && (write_before_read || load_use_hazard));
+assign id_ex_stall_pc = mem_busy || (!ex_branch_jalr && !id_jal && write_before_read);
+assign id_ex_stall_dp = mem_busy || (!ex_branch_jalr && !id_jal && write_before_read);
+assign ex_mem_stall_lsu = mem_busy;
+assign ex_mem_stall_haz = mem_busy;
+assign ex_mem_stall_dp = mem_busy;
+assign mem_wb_stall = mem_busy;
 
-    if_id_flush = '0;
-    id_ex_flush = '0;
-    ex_mem_flush = '0;
-    mem_wb_flush = '0;
-
-    if (mem_busy) begin
-        pc_stall = '1;
-        if_id_stall = '1;
-        id_ex_stall = '1;
-        ex_mem_stall = '1;
-        mem_wb_stall = '1;
-    end else if (ex_pc_src == PCSRC_JALR || ex_pc_src == PCSRC_BRANCH) begin
-        if_id_flush = '1;
-        id_ex_flush = '1;
-    end else if (id_pc_src == PCSRC_JAL) begin
-        if_id_flush = '1;
-    end else if (write_before_read) begin
-        pc_stall = '1;
-        if_id_stall = '1;
-        id_ex_stall = '1;
-        ex_mem_flush = '1;
-    end else if (load_use_hazard) begin
-        pc_stall = '1;
-        if_id_stall = '1;
-        id_ex_flush = '1;
-    end
-end
+assign if_id_flush = !mem_busy && (ex_branch_jalr || id_jal);
+assign id_ex_flush_pc = !mem_busy && (ex_branch_jalr || (!id_jal && !write_before_read && load_use_hazard));
+assign id_ex_flush_dp = !mem_busy && (ex_branch_jalr || (!id_jal && !write_before_read && load_use_hazard));
+assign ex_mem_flush_lsu = !mem_busy && !ex_branch_jalr && !id_jal && write_before_read;
+assign ex_mem_flush_haz = !mem_busy && !ex_branch_jalr && !id_jal && write_before_read;
+assign ex_mem_flush_dp = !mem_busy && !ex_branch_jalr && !id_jal && write_before_read;
+assign mem_wb_flush = '0;
 
 endmodule // hazard_unit

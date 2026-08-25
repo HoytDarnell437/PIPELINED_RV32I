@@ -188,40 +188,61 @@ package riscv_pkg;
     typedef struct packed {
         logic [31:0] ex_pc;
         logic [31:0] pc_4;
+        logic [31:0] pc_imm;
+        logic [1:0]  pc_src;
+        logic        is_branch;
+        logic        take_branch;
+        logic [2:0]  bu_ctrl;
+    } id_ex_pc_t;
+
+    typedef struct packed {
         logic [4:0] rs1;
         logic [4:0] rs2;
-        logic uses_rs1;
-        logic uses_rs2;
+        logic       uses_rs1;
+        logic       uses_rs2;
         logic [4:0] rd;
         logic [3:0] alu_ctrl;
-        logic [2:0] bu_ctrl;
-        logic is_branch;
-        logic take_branch;
-        logic alu_src_a;
-        logic alu_src_b;
+        logic       alu_src_a;
+        logic       alu_src_b;
         logic [31:0] imm;
-        logic reg_write;
+        logic       reg_write;
         logic [1:0] wr_src;
-        logic [1:0] pc_src;
-        logic mem_wr;
-        logic mem_rd;
+        logic       mem_wr;
+        logic       mem_rd;
         logic [1:0] mem_size;
-        logic sign;
+        logic       sign;
+    } id_ex_dp_t;
+
+    typedef struct packed {
+        id_ex_pc_t pc;
+        id_ex_dp_t dp;
     } id_ex_data_t;
 
     // Execute -> Memory
     typedef struct packed {
-        logic [31:0] mem_pc;
-        logic [31:0] pc_4;
-        logic [31:0] alu_res;
+        logic [1:0] mem_size;
+        logic [31:0] rs2_data;
+        logic sign;
+    } ex_mem_lsu_t;
+
+    typedef struct packed {
+        logic [4:0] rd;
         logic mem_wr;
         logic mem_rd;
-        logic [1:0] mem_size;
-        logic sign;
-        logic [31:0] rs2_data;
-        logic [4:0] rd;
-        logic [1:0] wr_src;
+        logic [31:0] alu_res;
         logic reg_write;
+    } ex_mem_haz_t;
+
+    typedef struct packed {
+        logic [31:0] mem_pc;
+        logic [31:0] pc_4;
+        logic [1:0] wr_src;
+    } ex_mem_dp_t;
+
+    typedef struct packed {
+        ex_mem_lsu_t lsu;
+        ex_mem_haz_t haz;
+        ex_mem_dp_t dp;
     } ex_mem_data_t;
 
     // Memory -> Writeback

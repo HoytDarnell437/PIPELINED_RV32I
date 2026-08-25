@@ -22,18 +22,18 @@ module memory_stage import riscv_pkg::*; (
 mem_wb_data_t mem_wb_data_next;
 
 always_comb begin
-    wr_addr = ex_mem_data.alu_res;
-    mem_wr = ex_mem_data.mem_wr;
+    wr_addr = ex_mem_data.haz.alu_res;
+    mem_wr = ex_mem_data.haz.mem_wr;
 
-    mem_wb_data_next.wr_src = ex_mem_data.wr_src;
-    mem_wb_data_next.alu_res = ex_mem_data.alu_res;
-    mem_wb_data_next.rd = ex_mem_data.rd;
-    mem_wb_data_next.reg_write = ex_mem_data.reg_write;
-    mem_wb_data_next.wb_pc = ex_mem_data.mem_pc;
-    mem_wb_data_next.pc_4 = ex_mem_data.pc_4;
+    mem_wb_data_next.wr_src = ex_mem_data.dp.wr_src;
+    mem_wb_data_next.alu_res = ex_mem_data.haz.alu_res;
+    mem_wb_data_next.rd = ex_mem_data.haz.rd;
+    mem_wb_data_next.reg_write = ex_mem_data.haz.reg_write;
+    mem_wb_data_next.wb_pc = ex_mem_data.dp.mem_pc;
+    mem_wb_data_next.pc_4 = ex_mem_data.dp.pc_4;
     mem_wb_data_next.rd_data = mem_rd_data;
 
-    mem_busy = (ex_mem_data.mem_rd || ex_mem_data.mem_wr) && !mem_ready;
+    mem_busy = (ex_mem_data.haz.mem_rd || ex_mem_data.haz.mem_wr) && !mem_ready;
 end
 
 mem_wb_reg mem_wb_reg_inst (
