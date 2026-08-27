@@ -12,11 +12,12 @@ module fetch_stage import riscv_pkg::*; (
     input logic if_id_stall,
     input logic flush,
     input logic [1:0] id_pc_src,
-    input logic [1:0] ex_pc_src,
-    input logic [31:0] ex_pc,
-    input logic ex_is_branch,
-    input logic ex_take_branch,
-    input logic [31:0] ex_branch_target,
+    input logic [1:0] mem_pc_src,
+    input logic write_before_read,
+    input logic [31:0] mem_pc,
+    input logic mem_is_branch,
+    input logic mem_take_branch,
+    input logic [31:0] mem_branch_target,
     input logic [31:0] jalr_target,
     input logic [31:0] jal_target,
     output if_id_data_t if_id_data
@@ -34,10 +35,13 @@ assign imem_en = ~pc_stall;
 always_comb begin
     branch_target = '0;
 
-    if (ex_pc_src == PCSRC_BRANCH) begin
+    if (write_before_read) begin
         pc_src = PCSRC_BRANCH;
-        branch_target = ex_branch_target;
-    end else if (ex_pc_src == PCSRC_JALR) begin
+        branch_target = mem_pc;
+    end else if (mem_pc_src == PCSRC_BRANCH) begin
+        pc_src = PCSRC_BRANCH;
+        branch_target = mem_branch_target;
+    end else if (mem_pc_src == PCSRC_JALR) begin
         pc_src = PCSRC_JALR;
     end else if (id_pc_src == PCSRC_JAL) begin
         pc_src = PCSRC_JAL;
@@ -74,9 +78,9 @@ bpu bpu_inst (
     .rst_n         (rst_n),
     .if_addr       (if_id_data_next.id_pc),
     .if_instr      (if_id_data_next.instr),
-    .ex_addr       (ex_pc),
-    .ex_is_branch  (ex_is_branch),
-    .ex_take_branch(ex_take_branch),
+    .ex_addr       (mem_pc),
+    .ex_is_branch  (mem_is_branch),
+    .ex_take_branch(mem_take_branch),
     .if_is_branch  (if_id_data_next.is_branch),
     .if_take_branch(if_id_data_next.take_branch)
 );

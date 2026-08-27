@@ -226,7 +226,7 @@ package riscv_pkg;
     } ex_mem_lsu_t;
 
     typedef struct packed {
-        logic [4:0] rd;
+        logic [4:0]  rd;
         logic mem_wr;
         logic mem_rd;
         logic [31:0] alu_res;
@@ -235,14 +235,22 @@ package riscv_pkg;
 
     typedef struct packed {
         logic [31:0] mem_pc;
+        logic [1:0]  pc_src;
+        logic is_branch;
+        logic take_branch;
+        logic [31:0] branch_target;
+    } ex_mem_pc_t;
+
+    typedef struct packed {
         logic [31:0] pc_4;
-        logic [1:0] wr_src;
+        logic [1:0]  wr_src;
     } ex_mem_dp_t;
 
     typedef struct packed {
         ex_mem_lsu_t lsu;
         ex_mem_haz_t haz;
-        ex_mem_dp_t dp;
+        ex_mem_pc_t  pc;
+        ex_mem_dp_t  dp;
     } ex_mem_data_t;
 
     // Memory -> Writeback
@@ -253,6 +261,7 @@ package riscv_pkg;
         logic [31:0] pc_4;
         logic [4:0] rd;
         logic [1:0] wr_src;
+        logic mem_wr;
         logic reg_write;
     } mem_wb_data_t;
 

@@ -14,7 +14,6 @@ localparam MEM_SIZE = 128,
 localparam ADDR_WIDTH = $clog2(MEM_SIZE)
 )(
 input logic clk,
-input logic rst_n,
 input logic en,
 input logic wr,
 input logic rd,
@@ -31,13 +30,6 @@ logic [31:0] ram [0 : MEM_SIZE - 1];
 logic [ADDR_WIDTH - 1 : 0] masked_rd_addr;
 logic [ADDR_WIDTH - 1 : 0] masked_wr_addr;
 
-typedef enum logic {
-    IDLE,
-    ACK
-} state_t;
-
-state_t state;
-
 // -- initialize memory --
 initial begin
     $readmemh("data.hex", ram);
@@ -48,6 +40,7 @@ assign masked_wr_addr = wr_addr[ADDR_WIDTH - 1 : 0];
 
 always_ff @(posedge clk) begin
     if (en && rd) begin
+        ready <= 1'b1;
         rd_data <= ram[masked_rd_addr];
     end
 end
@@ -58,29 +51,6 @@ always_ff @(posedge clk) begin
         if (byte_en[1]) ram[masked_wr_addr][15:8] <= wr_data[15:8];
         if (byte_en[2]) ram[masked_wr_addr][23:16] <= wr_data[23:16];
         if (byte_en[3]) ram[masked_wr_addr][31:24] <= wr_data[31:24];
-    end
-end
-
-always_ff @(posedge clk) begin
-    if (!rst_n) begin
-        state <= IDLE;
-        ready <= '0;
-    end else begin
-        unique case (state)
-            IDLE: begin
-                if (rd || wr) begin
-                    state <= ACK;
-                    ready <= 1'b1;
-                end else begin
-                    ready <= 1'b0;
-                end
-            end
-
-            ACK: begin
-                ready <= 1'b0;
-                state <= IDLE;
-            end
-        endcase
     end
 end
 

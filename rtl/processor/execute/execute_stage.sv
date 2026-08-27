@@ -10,9 +10,11 @@ module execute_stage import riscv_pkg::*; (
     input logic rst_n,
     input logic stall_lsu,
     input logic stall_haz,
+    input logic stall_pc,
     input logic stall_dp,
     input logic flush_lsu,
     input logic flush_haz,
+    input logic flush_pc,
     input logic flush_dp,
     input logic [1:0] rs1_fw_sel, rs2_fw_sel,
     input logic [31:0] mem_rd_fw, wb_rd_fw,
@@ -21,10 +23,7 @@ module execute_stage import riscv_pkg::*; (
     input id_ex_data_t id_ex_data,
     output ex_mem_data_t ex_mem_data,
     output logic mem_rd,
-    output logic [31:0] alu_res,
-    output logic [31:0] branch_target,
-    output logic [1:0] pc_src,
-    output logic take_branch
+    output logic [31:0] alu_res
 );
 
 ex_mem_data_t ex_mem_data_next;
@@ -36,15 +35,15 @@ logic branch;
 always_comb begin
     unique case (id_ex_data.pc.is_branch)
         0: branch = '0;
-        1: branch = take_branch;
+        1: branch = ex_mem_data_next.pc.take_branch;
     endcase
 
-    if (id_ex_data.pc.is_branch && (branch != id_ex_data.pc.take_branch)) pc_src = PCSRC_BRANCH;
-    else pc_src = id_ex_data.pc.pc_src;
+    if (id_ex_data.pc.is_branch && (branch != id_ex_data.pc.take_branch)) ex_mem_data_next.pc.pc_src = PCSRC_BRANCH;
+    else ex_mem_data_next.pc.pc_src = id_ex_data.pc.pc_src;
 
     unique case (branch)
-        IGNORE_BRANCH: branch_target = id_ex_data.pc.pc_4;
-        TAKE_BRANCH: branch_target = id_ex_data.pc.pc_imm;
+        IGNORE_BRANCH: ex_mem_data_next.pc.branch_target = id_ex_data.pc.pc_4;
+        TAKE_BRANCH: ex_mem_data_next.pc.branch_target = id_ex_data.pc.pc_imm;
     endcase
 
     case (rs1_fw_sel)
@@ -72,7 +71,8 @@ always_comb begin
     ex_mem_data_next.dp.wr_src = id_ex_data.dp.wr_src;
     ex_mem_data_next.haz.rd = id_ex_data.dp.rd;
     ex_mem_data_next.haz.reg_write = id_ex_data.dp.reg_write;
-    ex_mem_data_next.dp.mem_pc = id_ex_data.pc.ex_pc;
+    ex_mem_data_next.pc.is_branch = id_ex_data.pc.is_branch;
+    ex_mem_data_next.pc.mem_pc = id_ex_data.pc.ex_pc;
     ex_mem_data_next.dp.pc_4 = id_ex_data.pc.pc_4;
     ex_mem_data_next.haz.alu_res = alu_res;
 
@@ -96,7 +96,7 @@ bu bu_inst (
     .bu_ctrl(id_ex_data.pc.bu_ctrl),
     .data1  (reg_rs1_fw),
     .data2  (reg_rs2_fw),
-    .branch (take_branch)
+    .branch (ex_mem_data_next.pc.take_branch)
 );
 
 ex_mem_reg ex_mem_reg_inst (
@@ -104,9 +104,11 @@ ex_mem_reg ex_mem_reg_inst (
     .rst_n           (rst_n),
     .stall_lsu       (stall_lsu),
     .stall_haz       (stall_haz),
+    .stall_pc        (stall_pc),
     .stall_dp        (stall_dp),
     .flush_lsu       (flush_lsu),
     .flush_haz       (flush_haz),
+    .flush_pc        (flush_pc),
     .flush_dp        (flush_dp),
     .ex_mem_data_in  (ex_mem_data_next),
     .ex_mem_data_out (ex_mem_data)

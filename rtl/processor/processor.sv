@@ -28,6 +28,7 @@ logic id_ex_stall_pc;
 logic id_ex_stall_dp;
 logic ex_mem_stall_lsu;
 logic ex_mem_stall_haz;
+logic ex_mem_stall_pc;
 logic ex_mem_stall_dp;
 logic mem_wb_stall;
 
@@ -36,20 +37,18 @@ logic id_ex_flush_pc;
 logic id_ex_flush_dp;
 logic ex_mem_flush_lsu;
 logic ex_mem_flush_haz;
+logic ex_mem_flush_pc;
 logic ex_mem_flush_dp;
 logic mem_wb_flush;
 
 logic [1:0] rs1_fw_sel, rs2_fw_sel;
+logic write_before_read;
 
 logic id_uses_rs1, id_uses_rs2;
 
 logic [1:0] id_pc_src;
-logic [1:0] ex_pc_src;
 logic [31:0] jal_target;
 logic [31:0] alu_res;
-logic [31:0] ex_branch_target;
-
-logic ex_take_branch;
 
 logic [31:0] mem_wr_addr;
 logic mem_rd;
@@ -67,20 +66,21 @@ ex_mem_data_t ex_mem_data;
 mem_wb_data_t mem_wb_data;
 
 fetch_stage fetch_stage_inst (
-    .clk             (clk),
-    .rst_n           (rst_n),
-    .pc_stall        (pc_stall),
-    .if_id_stall     (if_id_stall),
-    .flush           (if_id_flush),
-    .id_pc_src       (id_pc_src),
-    .ex_pc_src       (ex_pc_src),
-    .ex_pc           (id_ex_data.pc.ex_pc),
-    .ex_is_branch    (id_ex_data.pc.is_branch),
-    .ex_take_branch  (ex_take_branch),
-    .ex_branch_target(ex_branch_target),
-    .jalr_target     (alu_res),
-    .jal_target      (jal_target),
-    .if_id_data      (if_id_data)
+    .clk              (clk),
+    .rst_n            (rst_n),
+    .pc_stall         (pc_stall),
+    .if_id_stall      (if_id_stall),
+    .flush            (if_id_flush),
+    .id_pc_src        (id_pc_src),
+    .mem_pc_src       (ex_mem_data.pc.pc_src),
+    .write_before_read(write_before_read),
+    .mem_pc           (ex_mem_data.pc.mem_pc),
+    .mem_is_branch    (ex_mem_data.pc.is_branch),
+    .mem_take_branch  (ex_mem_data.pc.take_branch),
+    .mem_branch_target(ex_mem_data.pc.branch_target),
+    .jalr_target      (ex_mem_data.haz.alu_res),
+    .jal_target       (jal_target),
+    .if_id_data       (if_id_data)
 );
 
 decode_stage decode_stage_inst (
@@ -103,9 +103,11 @@ execute_stage execute_stage_inst (
     .rst_n        (rst_n),
     .stall_lsu    (ex_mem_stall_lsu),
     .stall_haz    (ex_mem_stall_haz),
+    .stall_pc     (ex_mem_stall_pc),
     .stall_dp     (ex_mem_stall_dp),
     .flush_lsu    (ex_mem_flush_lsu),
     .flush_haz    (ex_mem_flush_haz),
+    .flush_pc     (ex_mem_flush_pc),
     .flush_dp     (ex_mem_flush_dp),
     .rs1_fw_sel   (rs1_fw_sel),
     .rs2_fw_sel   (rs2_fw_sel),
@@ -116,10 +118,7 @@ execute_stage execute_stage_inst (
     .id_ex_data   (id_ex_data),
     .ex_mem_data  (ex_mem_data),
     .mem_rd       (mem_rd),
-    .alu_res      (alu_res),
-    .branch_target(ex_branch_target),
-    .pc_src       (ex_pc_src),
-    .take_branch  (ex_take_branch)
+    .alu_res      (alu_res)
 );
 
 memory_stage memory_stage_inst (
@@ -178,9 +177,10 @@ hazard_unit hazard_unit_inst (
     .mem_rd          (ex_mem_data.haz.rd),
     .wb_rd           (mem_wb_data.rd),
     .ex_is_load      (id_ex_data.dp.mem_rd),
-    .mem_is_store    (ex_mem_data.haz.mem_wr),
-    .ex_addr         (alu_res[31:2]),
+    .mem_is_load     (ex_mem_data.haz.mem_rd),
+    .wb_is_store     (mem_wb_data.mem_wr),
     .mem_addr        (ex_mem_data.haz.alu_res[31:2]),
+    .wb_addr         (mem_wb_data.alu_res[31:2]),
     .id_uses_rs1     (id_uses_rs1),
     .id_uses_rs2     (id_uses_rs2),
     .ex_uses_rs1     (id_ex_data.dp.uses_rs1),
@@ -189,13 +189,14 @@ hazard_unit hazard_unit_inst (
     .wb_reg_write    (mem_wb_data.reg_write),
     .mem_busy        (mem_busy),
     .id_pc_src       (id_pc_src),
-    .ex_pc_src       (ex_pc_src),
+    .mem_pc_src      (ex_mem_data.pc.pc_src),
     .pc_stall        (pc_stall),
     .if_id_stall     (if_id_stall),
     .id_ex_stall_pc  (id_ex_stall_pc),
     .id_ex_stall_dp  (id_ex_stall_dp),
     .ex_mem_stall_lsu(ex_mem_stall_lsu),
     .ex_mem_stall_haz(ex_mem_stall_haz),
+    .ex_mem_stall_pc (ex_mem_stall_pc),
     .ex_mem_stall_dp (ex_mem_stall_dp),
     .mem_wb_stall    (mem_wb_stall),
     .if_id_flush     (if_id_flush),
@@ -203,10 +204,12 @@ hazard_unit hazard_unit_inst (
     .id_ex_flush_dp  (id_ex_flush_dp),
     .ex_mem_flush_lsu(ex_mem_flush_lsu),
     .ex_mem_flush_haz(ex_mem_flush_haz),
+    .ex_mem_flush_pc (ex_mem_flush_pc),
     .ex_mem_flush_dp (ex_mem_flush_dp),
     .mem_wb_flush    (mem_wb_flush),
     .rs1_fw_sel      (rs1_fw_sel),
-    .rs2_fw_sel      (rs2_fw_sel)
+    .rs2_fw_sel      (rs2_fw_sel),
+    .write_before_read(write_before_read)
 );
 
 endmodule // processor

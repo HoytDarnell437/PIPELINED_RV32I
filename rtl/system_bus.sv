@@ -159,7 +159,6 @@ pmod_gpio_controller pmod_gpio_controller_inst[3:0] (
 
 data_memory data_memory_inst (
     .clk(clk_sys),
-    .rst_n(rst_n),
     .en(bus.en),
     .wr(mem_wr),
     .rd(mem_rd),
