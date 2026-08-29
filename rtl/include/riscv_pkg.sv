@@ -6,12 +6,12 @@
 //
 // Description:
 //   Shared constants for the RV32I single-cycle processor.  Covers opcodes,
-//  funct3, funct7, alu control, write source, pc source, immediate select, and size
+//   funct3, funct7, alu control, write source, pc source, immediate select, and size
 //
 // Import into every module with `import riscv_pkg::*;`.
 //------------------------------------------------------------------------------
 package riscv_pkg;
-// -- parameters --
+// -- Parameters --
 
     // Opcodes
     localparam OP_LUI         = 7'b0110111;
@@ -40,7 +40,7 @@ package riscv_pkg;
     localparam F3_LW  = 3'b010;
     localparam F3_LBU = 3'b100;
     localparam F3_LHU = 3'b101;
- 
+
     // Store Funct3
     localparam F3_SB = 3'b000;
     localparam F3_SH = 3'b001;
@@ -149,6 +149,7 @@ package riscv_pkg;
     localparam ACCESS_JC          = 3'b110;
     localparam ACCESS_JD          = 3'b111;
 
+    // ADDRESS SELECT
     localparam SEL_SWITCHES = 3'b000;
     localparam SEL_BUTTONS  = 3'b001;
     localparam SEL_LEDS     = 3'b010;
@@ -157,21 +158,21 @@ package riscv_pkg;
     localparam SEL_JC       = 3'b101;
     localparam SEL_JD       = 3'b110;
 
-    // Data Forwarding Select
+    // DATA FORWARDING SELECT
     localparam FWSEL_REG = 2'b00;
     localparam FWSEL_MEM = 2'b01;
     localparam FWSEL_WB  = 2'b10;
 
-    // Register Address for mmio
+    // REGISTER ADDRESS FOR PMOD
     localparam REGADDR_IN  = 2'b00;
     localparam REGADDR_OUT = 2'b01;
     localparam REGADDR_DIR = 2'b10;
 
-    // Branch Saturation Counter Values
+    // BRANCH SATURATION COUNTER
     localparam STRONGLY_NOT_TAKEN = 2'b00;
-    localparam NOT_TAKEN = 2'b01;
-    localparam TAKEN = 2'b10;
-    localparam STRONGLY_TAKEN = 2'b11;
+    localparam NOT_TAKEN          = 2'b01;
+    localparam TAKEN              = 2'b10;
+    localparam STRONGLY_TAKEN     = 2'b11;
 
 // -- Pipeline Port Structs -- 
 
@@ -180,8 +181,8 @@ package riscv_pkg;
         logic [31:0] id_pc;
         logic [31:0] pc_4;
         logic [31:0] instr;
-        logic is_branch;
-        logic take_branch;
+        logic        is_branch;
+        logic        take_branch;
     } if_id_data_t;
     
     // Decode -> Execute
@@ -196,21 +197,21 @@ package riscv_pkg;
     } id_ex_pc_t;
 
     typedef struct packed {
-        logic [4:0] rs1;
-        logic [4:0] rs2;
-        logic       uses_rs1;
-        logic       uses_rs2;
-        logic [4:0] rd;
-        logic [3:0] alu_ctrl;
-        logic       alu_src_a;
-        logic       alu_src_b;
+        logic [4:0]  rs1;
+        logic [4:0]  rs2;
+        logic        uses_rs1;
+        logic        uses_rs2;
+        logic [4:0]  rd;
+        logic [3:0]  alu_ctrl;
+        logic        alu_src_a;
+        logic        alu_src_b;
         logic [31:0] imm;
-        logic       reg_write;
-        logic [1:0] wr_src;
-        logic       mem_wr;
-        logic       mem_rd;
-        logic [1:0] mem_size;
-        logic       sign;
+        logic        reg_write;
+        logic [1:0]  wr_src;
+        logic        mem_wr;
+        logic        mem_rd;
+        logic [1:0]  mem_size;
+        logic        sign;
     } id_ex_dp_t;
 
     typedef struct packed {
@@ -220,24 +221,24 @@ package riscv_pkg;
 
     // Execute -> Memory
     typedef struct packed {
-        logic [1:0] mem_size;
+        logic [1:0]  mem_size;
         logic [31:0] rs2_data;
-        logic sign;
+        logic        sign;
     } ex_mem_lsu_t;
 
     typedef struct packed {
         logic [4:0]  rd;
-        logic mem_wr;
-        logic mem_rd;
+        logic        mem_wr;
+        logic        mem_rd;
         logic [31:0] alu_res;
-        logic reg_write;
+        logic        reg_write;
     } ex_mem_haz_t;
 
     typedef struct packed {
         logic [31:0] mem_pc;
         logic [1:0]  pc_src;
-        logic is_branch;
-        logic take_branch;
+        logic        is_branch;
+        logic        take_branch;
         logic [31:0] branch_target;
     } ex_mem_pc_t;
 
@@ -259,10 +260,10 @@ package riscv_pkg;
         logic [31:0] alu_res;
         logic [31:0] rd_data;
         logic [31:0] pc_4;
-        logic [4:0] rd;
-        logic [1:0] wr_src;
-        logic mem_wr;
-        logic reg_write;
+        logic [4:0]  rd;
+        logic [1:0]  wr_src;
+        logic        mem_wr;
+        logic        reg_write;
     } mem_wb_data_t;
 
 endpackage // riscv_pkg

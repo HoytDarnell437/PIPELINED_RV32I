@@ -10,27 +10,25 @@
 //------------------------------------------------------------------------------
 
 module data_memory #(
-localparam MEM_SIZE = 128,
-localparam ADDR_WIDTH = $clog2(MEM_SIZE)
+    localparam MEM_SIZE = 128,
+    localparam ADDR_WIDTH = $clog2(MEM_SIZE)
 )(
-input logic clk,
-input logic en,
-input logic wr,
-input logic rd,
-input logic [3:0] byte_en,
-input logic [31:0] wr_data,
-input logic [29:0] rd_addr,
-input logic [29:0] wr_addr,
-output logic [31:0] rd_data,
-output logic ready
+    input  logic        clk,
+    input  logic        en,
+    input  logic        wr,
+    input  logic        rd,
+    input  logic [3:0]  byte_en,
+    input  logic [31:0] wr_data,
+    input  logic [29:0] rd_addr,
+    input  logic [29:0] wr_addr,
+    output logic [31:0] rd_data,
+    output logic        ready
 );
 
-// -- signal declaration --
-logic [31:0] ram [0 : MEM_SIZE - 1];
+logic [31:0]               ram [0 : MEM_SIZE - 1];
 logic [ADDR_WIDTH - 1 : 0] masked_rd_addr;
 logic [ADDR_WIDTH - 1 : 0] masked_wr_addr;
 
-// -- initialize memory --
 initial begin
     $readmemh("data.hex", ram);
 end

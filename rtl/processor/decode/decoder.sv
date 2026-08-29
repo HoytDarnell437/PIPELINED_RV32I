@@ -6,35 +6,33 @@
 //
 // Timing: Purely combinational
 //------------------------------------------------------------------------------
+
 module decoder import riscv_pkg::*; (
-input logic [31:0] instr,
-output logic [4:0] rs1,
-output logic [4:0] rs2,
-output logic [4:0] rd,
-output logic uses_rs1,
-output logic uses_rs2,
-output logic [3:0] alu_ctrl,
-output logic [2:0] bu_ctrl,
-output logic alu_src_a,
-output logic alu_src_b,
-output logic reg_write,
-output logic [1:0] wr_src,
-output logic [2:0] imm_sel,
-output logic mem_wr,
-output logic mem_rd,
-output logic [1:0] pc_src,
-output logic [1:0] mem_size,
-output logic sign
+    input  logic [31:0] instr,
+    output logic [4:0]  rs1,
+    output logic [4:0]  rs2,
+    output logic [4:0]  rd,
+    output logic        uses_rs1,
+    output logic        uses_rs2,
+    output logic [3:0]  alu_ctrl,
+    output logic [2:0]  bu_ctrl,
+    output logic        alu_src_a,
+    output logic        alu_src_b,
+    output logic        reg_write,
+    output logic [1:0]  wr_src,
+    output logic [2:0]  imm_sel,
+    output logic        mem_wr,
+    output logic        mem_rd,
+    output logic [1:0]  pc_src,
+    output logic [1:0]  mem_size,
+    output logic        sign
 );
 
-// -- signal declaration --
 logic [6:0] opcode;
 logic [2:0] funct3;
 logic [6:0] funct7;
 
-// -- combinational logic --
 always_comb begin
-    // default values
     rs1 = instr[19:15];
     rs2 = instr[24:20];
     rd = instr[11:7];
@@ -53,19 +51,14 @@ always_comb begin
     mem_size = SIZE_B;
     sign = 1'b1;
     
-    // Operation Specifiers
     opcode = instr[6:0];
     funct3 = instr[14:12];
     funct7 = instr[31:25];
     
     unique case (opcode)
-        // ADDI SLTI SLTIU XORI ORI ANDI SLLI SRLI SRAI
         OP_I_TYPE: begin
             imm_sel = IMM_I_TYPE;
-            unique case (funct3)
-                F3_ADD_SUB: begin
-                    // Default values sufficient
-                end
+            case (funct3)
                 F3_SLT: begin
                     alu_ctrl = ALU_SLT;
                 end
@@ -94,6 +87,7 @@ always_comb begin
                         alu_ctrl = ALU_SRA;
                     end
                 end
+                default:;
             endcase
         end
         OP_JALR: begin
@@ -108,16 +102,7 @@ always_comb begin
         OP_ENVIRONMENT: begin
             imm_sel = IMM_I_TYPE;
             reg_write = 1'b0;
-            // ECALL
-            if (!instr[20]) begin
-                // Default values sufficient
-            end
-            // EBREAK
-            else begin
-                // Default values sufficient
-            end
         end
-        // LB LH LW LBU LHU
         OP_LOAD: begin
             imm_sel = IMM_I_TYPE;
             wr_src = WRSRC_READ;
@@ -142,15 +127,12 @@ always_comb begin
                 end
             endcase
         end
-        // ADD SUB SLL SLT SLTU XOR SRL SRA OR AND
         OP_R_TYPE: begin
             alu_src_b = ALUSRC2_RS;
             uses_rs2 = '1;
             unique case (funct3)
                 F3_ADD_SUB: begin
-                    if (funct7 == F7_ADD) begin
-                        // Default values sufficient
-                    end
+                    if (funct7 == F7_ADD);
                     else begin
                         alu_ctrl = ALU_SUB;
                     end
@@ -183,7 +165,6 @@ always_comb begin
                 end
             endcase
         end
-        // BEQ BNE BLT BGE BLTU BGEU
         OP_B_TYPE: begin
             alu_src_b = ALUSRC2_RS;
             uses_rs2 = '1;
@@ -214,7 +195,6 @@ always_comb begin
                 end
             endcase
         end
-        // SB SH SW
         OP_STORE: begin
             imm_sel = IMM_S_TYPE;
             uses_rs2 = '1;
@@ -227,7 +207,9 @@ always_comb begin
                 F3_SW: begin
                     mem_size = SIZE_W;
                 end
-                default: mem_size = SIZE_B;
+                default: begin
+                    mem_size = SIZE_B;
+                end
             endcase
         end
         OP_LUI: begin

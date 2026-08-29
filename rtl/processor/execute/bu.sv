@@ -8,10 +8,10 @@
 //------------------------------------------------------------------------------
 
 module bu import riscv_pkg::*; (
-    input logic [2:0] bu_ctrl,
-    input logic [31:0] data1,
-    input logic [31:0] data2,
-    output logic branch
+    input  logic [2:0]  bu_ctrl,
+    input  logic [31:0] data1,
+    input  logic [31:0] data2,
+    output logic        branch
 );
 
 always_comb begin
@@ -34,7 +34,10 @@ always_comb begin
         BU_BGEU: begin
             branch = data1 >= data2;
         end
-        default: branch = IGNORE_BRANCH;
+        default: begin
+            branch = IGNORE_BRANCH;
+        end
     endcase
 end
+
 endmodule // bu

@@ -6,8 +6,8 @@
 //------------------------------------------------------------------------------
 
 module writeback_stage import riscv_pkg::*; (
-    input mem_wb_data_t mem_wb_data,
-    output logic [31:0] wr_data
+    input  mem_wb_data_t mem_wb_data,
+    output logic [31:0]  wr_data
 );
 
 always_comb begin

@@ -9,10 +9,10 @@
 //------------------------------------------------------------------------------
 
 module sync_reset (
-input logic clk,
-input logic invert_rst,
-input logic locked,
-output logic rst_n
+    input  logic clk,
+    input  logic invert_rst,
+    input  logic locked,
+    output logic rst_n
 );
 
 logic rst_sync;

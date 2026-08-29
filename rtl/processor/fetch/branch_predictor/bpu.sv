@@ -7,30 +7,24 @@
 // Description: Simple BTFNT branch predictor
 //------------------------------------------------------------------------------
 
-module bpu (
-    input logic clk,
-    input logic rst_n,
-    input logic [31:0] if_addr,
-    input logic [31:0] if_instr,
-    input logic [31:0] ex_addr,
-    input logic ex_is_branch,
-    input logic ex_take_branch,
-    output logic if_is_branch,
-    output logic if_take_branch
+module bpu import riscv_pkg::*; (
+    input  logic        clk,
+    input  logic        rst_n,
+    input  logic [31:0] if_addr,
+    input  logic [31:0] if_instr,
+    input  logic [31:0] ex_addr,
+    input  logic        ex_is_branch,
+    input  logic        ex_take_branch,
+    output logic        if_is_branch,
+    output logic        if_take_branch
 );
 
 logic btfnt_branch;
 logic dynamic_branch;
 logic valid;
 
-always_comb begin
-    if_is_branch = if_instr[6:0] == 'b1100011;
-
-    unique case (valid)
-        0: if_take_branch = btfnt_branch;
-        1: if_take_branch = dynamic_branch;
-    endcase
-end
+assign if_is_branch = if_instr[6:0] == OP_B_TYPE;
+assign if_take_branch = valid ? dynamic_branch : btfnt_branch;
 
 btfnt btfnt_inst (
     .instr      (if_instr),

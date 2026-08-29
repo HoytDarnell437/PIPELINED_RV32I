@@ -6,16 +6,16 @@
 //------------------------------------------------------------------------------
 
 module decode_stage import riscv_pkg::*; (
-    input logic clk,
-    input logic rst_n,
-    input logic stall_pc,
-    input logic stall_dp,
-    input logic flush_pc,
-    input logic flush_dp,
-    input if_id_data_t if_id_data,
+    input  logic        clk,
+    input  logic        rst_n,
+    input  logic        stall_pc,
+    input  logic        stall_dp,
+    input  logic        flush_pc,
+    input  logic        flush_dp,
+    input  if_id_data_t if_id_data,
     output id_ex_data_t id_ex_data,
-    output logic uses_rs1, uses_rs2,
-    output logic [1:0] pc_src,
+    output logic        uses_rs1, uses_rs2,
+    output logic [1:0]  pc_src,
     output logic [31:0] pc_imm
 );
 
@@ -44,7 +44,7 @@ decoder decoder_inst (
     .uses_rs1 (uses_rs1),
     .uses_rs2 (uses_rs2),
     .alu_ctrl (id_ex_data_next.dp.alu_ctrl),
-    .bu_ctrl (id_ex_data_next.pc.bu_ctrl),
+    .bu_ctrl  (id_ex_data_next.pc.bu_ctrl),
     .alu_src_a(id_ex_data_next.dp.alu_src_a),
     .alu_src_b(id_ex_data_next.dp.alu_src_b),
     .reg_write(id_ex_data_next.dp.reg_write),
@@ -63,13 +63,13 @@ imm_gen imm_gen_inst (
     .imm    (id_ex_data_next.dp.imm)
 );
 
-id_ex_reg id_ex_reg (
+id_ex_reg id_ex_reg_inst (
     .clk           (clk),
     .rst_n         (rst_n),
-    .stall_pc         (stall_pc),
-    .stall_dp         (stall_dp),
-    .flush_pc         (flush_pc),
-    .flush_dp         (flush_dp),
+    .stall_pc      (stall_pc),
+    .stall_dp      (stall_dp),
+    .flush_pc      (flush_pc),
+    .flush_dp      (flush_dp),
     .id_ex_data_in (id_ex_data_next),
     .id_ex_data_out(id_ex_data)
 );

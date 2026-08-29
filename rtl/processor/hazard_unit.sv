@@ -6,66 +6,63 @@
 //------------------------------------------------------------------------------
 
 module hazard_unit import riscv_pkg::*; (
-    input logic [4:0] id_rs1,
-    input logic [4:0] id_rs2,
-    input logic [4:0] ex_rs1,
-    input logic [4:0] ex_rs2,
-    input logic [4:0] ex_rd,
-    input logic [4:0] mem_rd,
-    input logic [4:0] wb_rd,
-    input logic id_uses_rs1,
-    input logic id_uses_rs2,
-    input logic ex_uses_rs1,
-    input logic ex_uses_rs2,
-    input logic ex_is_load,
-    input logic mem_is_load,
-    input logic wb_is_store,
-    input logic [29:0] mem_addr,
-    input logic [29:0] wb_addr,
-    input logic mem_reg_write,
-    input logic wb_reg_write,
-    input logic mem_busy,
-    input logic [1:0] id_pc_src,
-    input logic [1:0] mem_pc_src,
-    output logic pc_stall,
-    output logic if_id_stall,
-    output logic id_ex_stall_pc,
-    output logic id_ex_stall_dp,
-    output logic ex_mem_stall_lsu,
-    output logic ex_mem_stall_haz,
-    output logic ex_mem_stall_pc,
-    output logic ex_mem_stall_dp,
-    output logic mem_wb_stall,
-    output logic if_id_flush,
-    output logic id_ex_flush_pc,
-    output logic id_ex_flush_dp,
-    output logic ex_mem_flush_lsu,
-    output logic ex_mem_flush_haz,
-    output logic ex_mem_flush_pc,
-    output logic ex_mem_flush_dp,
-    output logic mem_wb_flush,
-    output logic [1:0] rs1_fw_sel, rs2_fw_sel,
-    output logic write_before_read
+    input  logic [4:0]  id_rs1,
+    input  logic [4:0]  id_rs2,
+    input  logic [4:0]  ex_rs1,
+    input  logic [4:0]  ex_rs2,
+    input  logic [4:0]  ex_rd,
+    input  logic [4:0]  mem_rd,
+    input  logic [4:0]  wb_rd,
+    input  logic        id_uses_rs1,
+    input  logic        id_uses_rs2,
+    input  logic        ex_uses_rs1,
+    input  logic        ex_uses_rs2,
+    input  logic        ex_is_load,
+    input  logic        mem_is_load,
+    input  logic        wb_is_store,
+    input  logic [29:0] mem_addr,
+    input  logic [29:0] wb_addr,
+    input  logic        mem_reg_write,
+    input  logic        wb_reg_write,
+    input  logic        mem_busy,
+    input  logic [1:0]  id_pc_src,
+    input  logic [1:0]  mem_pc_src,
+    output logic        pc_stall,
+    output logic        if_id_stall,
+    output logic        id_ex_stall_pc,
+    output logic        id_ex_stall_dp,
+    output logic        ex_mem_stall_lsu,
+    output logic        ex_mem_stall_haz,
+    output logic        ex_mem_stall_pc,
+    output logic        ex_mem_stall_dp,
+    output logic        mem_wb_stall,
+    output logic        if_id_flush,
+    output logic        id_ex_flush_pc,
+    output logic        id_ex_flush_dp,
+    output logic        ex_mem_flush_lsu,
+    output logic        ex_mem_flush_haz,
+    output logic        ex_mem_flush_pc,
+    output logic        ex_mem_flush_dp,
+    output logic        mem_wb_flush,
+    output logic [1:0]  rs1_fw_sel, rs2_fw_sel,
+    output logic        write_before_read
 );
 
 logic load_use_hazard;
 logic mem_branch_jalr;
 logic id_jal;
 
-assign rs1_fw_sel = (!ex_uses_rs1 || (ex_rs1 == '0))      ? FWSEL_REG :
-                    (mem_reg_write  && (mem_rd  == ex_rs1)) ? FWSEL_MEM  :
-                    (wb_reg_write && (wb_rd == ex_rs1)) ? FWSEL_WB :
-                                                            FWSEL_REG;
+assign rs1_fw_sel = (!ex_uses_rs1 || (ex_rs1 == '0))        ? FWSEL_REG:
+                    (mem_reg_write  && (mem_rd  == ex_rs1)) ? FWSEL_MEM:
+                    (wb_reg_write && (wb_rd == ex_rs1))     ? FWSEL_WB:
+                                                              FWSEL_REG;
 
-assign rs2_fw_sel = (!ex_uses_rs2 || (ex_rs2 == '0))      ? FWSEL_REG :
-                    (mem_reg_write  && (mem_rd  == ex_rs2)) ? FWSEL_MEM  :
-                    (wb_reg_write && (wb_rd == ex_rs2)) ? FWSEL_WB :
-                                                            FWSEL_REG;
+assign rs2_fw_sel = (!ex_uses_rs2 || (ex_rs2 == '0))        ? FWSEL_REG:
+                    (mem_reg_write  && (mem_rd  == ex_rs2)) ? FWSEL_MEM:
+                    (wb_reg_write && (wb_rd == ex_rs2))     ? FWSEL_WB:
+                                                              FWSEL_REG;
 
-assign load_use_hazard = ex_is_load && ex_rd != '0 && (
-    (id_uses_rs1 && id_rs1 == ex_rd) ||
-    (id_uses_rs2 && id_rs2 == ex_rd)
-);
+assign load_use_hazard = ex_is_load && ex_rd != '0 && ((id_uses_rs1 && id_rs1 == ex_rd) || (id_uses_rs2 && id_rs2 == ex_rd));
 
 assign write_before_read = mem_is_load && wb_is_store && (mem_addr == wb_addr);
 

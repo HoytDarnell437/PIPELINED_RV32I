@@ -7,15 +7,15 @@
 // Timing: Purely combinational
 //------------------------------------------------------------------------------
 module instruction_memory #(
-localparam INSTRUCTION_COUNT = 1024
+    localparam INSTRUCTION_COUNT = 1024
 )(
-input logic clk,
-input logic en,
-input logic [31:0] addr,
-output logic [31:0] instr
+    input  logic        clk,
+    input  logic        en,
+    input  logic [31:0] addr,
+    output logic [31:0] instr
 );
 
-logic [31:0] rom [0:INSTRUCTION_COUNT-1];
+logic [31:0] rom [0 : INSTRUCTION_COUNT - 1];
 
 initial begin
     $readmemh("instructions.hex", rom);

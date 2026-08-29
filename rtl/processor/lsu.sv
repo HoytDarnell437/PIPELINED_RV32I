@@ -12,17 +12,17 @@
 //------------------------------------------------------------------------------
 
 module lsu import riscv_pkg::*; (
-input logic ex_mem_stall,
-input logic [31:0] ex_addr,
-input logic [31:0] mem_addr,
-input logic rd,
-input logic wr,
-input logic [1:0] mem_size,
-input logic [31:0] wr_data_in,
-input logic sign,
-output logic [31:0] rd_data_out,
-mmio_bus_if.master bus,
-output logic mem_ready
+    input  logic        ex_mem_stall,
+    input  logic [31:0] ex_addr,
+    input  logic [31:0] mem_addr,
+    input  logic        rd,
+    input  logic        wr,
+    input  logic [1:0]  mem_size,
+    input  logic [31:0] wr_data_in,
+    input  logic        sign,
+    output logic [31:0] rd_data_out,
+    mmio_bus_if.master  bus,
+    output logic        mem_ready
 );
 
 logic [3:0] byte_en;
@@ -52,53 +52,31 @@ always_comb begin
                 FIRST_HALF: byte_en = EN_FIRST_HALF;
                 SECOND_HALF: byte_en = EN_SECOND_HALF;
             endcase
-        SIZE_W:
-            byte_en = EN_WORD;
-        default:
-            byte_en = 4'b0000;
+        SIZE_W: byte_en = EN_WORD;
+        default: byte_en = 4'b0000;
     endcase
 end
 
 always_comb begin
     case (byte_en)
-        EN_FIRST_BYTE: begin
-            rd_data_out = { {24{sign & bus.rd_data[7]}} , bus.rd_data[7:0] };
-        end
-        EN_SECOND_BYTE: begin
-            rd_data_out = { {24{sign & bus.rd_data[15]}} , bus.rd_data[15:8] };
-        end
-        EN_THIRD_BYTE: begin
-            rd_data_out = { {24{sign & bus.rd_data[23]}} , bus.rd_data[23:16] };
-        end
-        EN_FOURTH_BYTE: begin
-            rd_data_out = { {24{sign & bus.rd_data[31]}} , bus.rd_data[31:24] };
-        end
-        EN_FIRST_HALF: begin
-            rd_data_out = { {16{sign & bus.rd_data[15]}} , bus.rd_data[15:0] };
-        end
-        EN_SECOND_HALF: begin
-            rd_data_out = { {16{sign & bus.rd_data[31]}} , bus.rd_data[31:16] };
-        end
-        EN_WORD: begin
-            rd_data_out = bus.rd_data;
-        end
-        default: begin
-            rd_data_out = 32'b0;
-        end
+        EN_FIRST_BYTE: rd_data_out = {{24{sign & bus.rd_data[7]}}, bus.rd_data[7:0]};
+        EN_SECOND_BYTE: rd_data_out = {{24{sign & bus.rd_data[15]}}, bus.rd_data[15:8]};
+        EN_THIRD_BYTE: rd_data_out = {{24{sign & bus.rd_data[23]}}, bus.rd_data[23:16]};
+        EN_FOURTH_BYTE: rd_data_out = {{24{sign & bus.rd_data[31]}}, bus.rd_data[31:24]};
+        EN_FIRST_HALF: rd_data_out = {{16{sign & bus.rd_data[15]}}, bus.rd_data[15:0]};
+        EN_SECOND_HALF: rd_data_out = {{16{sign & bus.rd_data[31]}}, bus.rd_data[31:16]};
+        EN_WORD: rd_data_out = bus.rd_data;
+        default: rd_data_out = 32'b0;
     endcase
 end
 
 // Write
 always_comb begin
     case (mem_size)
-        SIZE_B: 
-            bus.wr_data = { 4{wr_data_in[7:0]} };
-        SIZE_H:
-            bus.wr_data = { 2{wr_data_in[15:0]} };
-        SIZE_W:
-            bus.wr_data = wr_data_in;
-        default:
-            bus.wr_data = 32'b0;
+        SIZE_B: bus.wr_data = {4{wr_data_in[7:0]}};
+        SIZE_H: bus.wr_data = {2{wr_data_in[15:0]}};
+        SIZE_W: bus.wr_data = wr_data_in;
+        default: bus.wr_data = 32'b0;
     endcase
 end
 

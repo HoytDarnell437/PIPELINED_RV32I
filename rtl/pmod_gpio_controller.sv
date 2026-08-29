@@ -7,12 +7,12 @@
 //------------------------------------------------------------------------------
 
 module pmod_gpio_controller import riscv_pkg::*; (
-    input logic clk,
-    input logic rst_n,
-    input logic wr_en,
-    inout logic [7:0] pmod_io,
-    input logic [7:0] wr_data,
-    input logic [1:0] reg_addr,
+    input  logic       clk,
+    input  logic       rst_n,
+    input  logic       wr_en,
+    inout  logic [7:0] pmod_io,
+    input  logic [7:0] wr_data,
+    input  logic [1:0] reg_addr,
     output logic [7:0] rd_data
 );
 

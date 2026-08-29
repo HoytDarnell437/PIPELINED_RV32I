@@ -6,31 +6,31 @@
 //------------------------------------------------------------------------------
 
 module execute_stage import riscv_pkg::*; (
-    input logic clk,
-    input logic rst_n,
-    input logic stall_lsu,
-    input logic stall_haz,
-    input logic stall_pc,
-    input logic stall_dp,
-    input logic flush_lsu,
-    input logic flush_haz,
-    input logic flush_pc,
-    input logic flush_dp,
-    input logic [1:0] rs1_fw_sel, rs2_fw_sel,
-    input logic [31:0] mem_rd_fw, wb_rd_fw,
-    input logic [31:0] reg_rs1,
-    input logic [31:0] reg_rs2,
-    input id_ex_data_t id_ex_data,
+    input  logic         clk,
+    input  logic         rst_n,
+    input  logic         stall_lsu,
+    input  logic         stall_haz,
+    input  logic         stall_pc,
+    input  logic         stall_dp,
+    input  logic         flush_lsu,
+    input  logic         flush_haz,
+    input  logic         flush_pc,
+    input  logic         flush_dp,
+    input  logic [1:0]   rs1_fw_sel, rs2_fw_sel,
+    input  logic [31:0]  mem_rd_fw, wb_rd_fw,
+    input  logic [31:0]  reg_rs1,
+    input  logic [31:0]  reg_rs2,
+    input  id_ex_data_t  id_ex_data,
     output ex_mem_data_t ex_mem_data,
-    output logic mem_rd,
-    output logic [31:0] alu_res
+    output logic         mem_rd,
+    output logic [31:0]  alu_res
 );
 
 ex_mem_data_t ex_mem_data_next;
 
 logic [31:0] reg_rs1_fw, reg_rs2_fw;
 logic [31:0] data1, data2;
-logic branch;
+logic        branch;
 
 always_comb begin
     unique case (id_ex_data.pc.is_branch)
@@ -38,8 +38,11 @@ always_comb begin
         1: branch = ex_mem_data_next.pc.take_branch;
     endcase
 
-    if (id_ex_data.pc.is_branch && (branch != id_ex_data.pc.take_branch)) ex_mem_data_next.pc.pc_src = PCSRC_BRANCH;
-    else ex_mem_data_next.pc.pc_src = id_ex_data.pc.pc_src;
+    if (id_ex_data.pc.is_branch && (branch != id_ex_data.pc.take_branch)) begin
+        ex_mem_data_next.pc.pc_src = PCSRC_BRANCH;
+    end else begin
+        ex_mem_data_next.pc.pc_src = id_ex_data.pc.pc_src;
+    end
 
     unique case (branch)
         IGNORE_BRANCH: ex_mem_data_next.pc.branch_target = id_ex_data.pc.pc_4;

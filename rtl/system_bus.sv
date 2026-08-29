@@ -14,32 +14,30 @@
 `timescale 1ns / 1ps
 
 module system_bus import riscv_pkg::*; (
-input logic clk_100,
-input logic sys_rst_n,
-input logic [3:0] buttons,
-input logic [3:0] switches,
-output logic [3:0] leds,
-inout logic [7:0] ja,
-inout logic [7:0] jb,
-inout logic [7:0] jc,
-inout logic [7:0] jd,
-output logic locked
+    input  logic       clk_100,
+    input  logic       sys_rst_n,
+    input  logic [3:0] buttons,
+    input  logic [3:0] switches,
+    output logic [3:0] leds,
+    inout  logic [7:0] ja,
+    inout  logic [7:0] jb,
+    inout  logic [7:0] jc,
+    inout  logic [7:0] jd,
+    output logic       locked
 );
 
-// -- signal declaration --
 logic clk_sys;
-
 logic rst_n;
 
-logic [3:0] pmod_wr_en;
-logic [7:0] pmod_wr_data;
-logic [1:0] pmod_reg_addr;
+logic [3:0]  pmod_wr_en;
+logic [7:0]  pmod_wr_data;
+logic [1:0]  pmod_reg_addr;
 logic [31:0] pmod_rd_data;
-logic [1:0] pmod_reg_addr_rd;
+logic [1:0]  pmod_reg_addr_rd;
 
-logic mem_rd;
-logic mem_wr;
-logic mem_ready;
+logic        mem_rd;
+logic        mem_wr;
+logic        mem_ready;
 logic [31:0] mem_rd_data;
 
 logic [2:0] rd_peripheral_sel;
@@ -48,42 +46,50 @@ logic [2:0] wr_peripheral_sel;
 
 logic [3:0] led_reg;
 
+
+assign leds = led_reg;
+assign pmod_wr_data = bus.wr_data[7:0];
+assign mem_rd = (rd_peripheral_sel == ACCESS_DATA_MEMORY) ? bus.rd : '0;
+assign pmod_reg_addr = (pmod_wr_en != '0) ? bus.wr_addr[1:0] : pmod_reg_addr_rd;
+
 always_comb begin
-    mem_rd = '0;
     mem_wr = '0;
-    bus.rd_data = '0;
-    bus.ready = '0;
     pmod_wr_en = '0;
 
-    leds = led_reg;
-    pmod_wr_data = bus.wr_data[7:0];
-
-    if (rd_peripheral_sel == ACCESS_DATA_MEMORY) begin
-        mem_rd = bus.rd;
-    end 
-
-    if (rd_peripheral_sel_reg == ACCESS_DATA_MEMORY) begin
-        bus.rd_data = mem_rd_data;
-        bus.ready = mem_ready;
-    end else if (rd_peripheral_sel_reg == ACCESS_SWITCHES) begin
-        bus.rd_data = { 28'b0 , switches };
-        bus.ready = '1;
-    end else if (rd_peripheral_sel_reg == ACCESS_BUTTONS) begin
-        bus.rd_data = { 28'b0 , buttons };
-        bus.ready = '1;
-    end else if (rd_peripheral_sel_reg == ACCESS_JA) begin
-        bus.rd_data = { 24'b0 , pmod_rd_data[7:0] };
-        bus.ready = '1;
-    end else if (rd_peripheral_sel_reg == ACCESS_JB) begin
-        bus.rd_data = { 24'b0 , pmod_rd_data[15:8] };
-        bus.ready = '1;
-    end else if (rd_peripheral_sel_reg == ACCESS_JC) begin
-        bus.rd_data = { 24'b0 , pmod_rd_data[23:16] };
-        bus.ready = '1;
-    end else if (rd_peripheral_sel_reg == ACCESS_JD) begin
-        bus.rd_data = { 24'b0 , pmod_rd_data[31:24] };
-        bus.ready = '1;
-    end
+    case (rd_peripheral_sel_reg)
+        ACCESS_DATA_MEMORY: begin
+            bus.rd_data = mem_rd_data;
+            bus.ready = mem_ready;
+        end
+        ACCESS_SWITCHES: begin
+            bus.rd_data = {28'b0, switches};
+            bus.ready = '1;
+        end
+        ACCESS_BUTTONS: begin
+            bus.rd_data = {28'b0, buttons};
+            bus.ready = '1;
+        end
+        ACCESS_JA: begin
+            bus.rd_data = {24'b0, pmod_rd_data[7:0]};
+            bus.ready = '1;
+        end
+        ACCESS_JB: begin
+            bus.rd_data = {24'b0, pmod_rd_data[15:8]};
+            bus.ready = '1;
+        end
+        ACCESS_JC: begin
+            bus.rd_data = {24'b0, pmod_rd_data[23:16]};
+            bus.ready = '1;
+        end
+        ACCESS_JD: begin
+            bus.rd_data = {24'b0, pmod_rd_data[31:24]};
+            bus.ready = '1;
+        end
+        default: begin
+            bus.rd_data = '0;
+            bus.ready = '0;
+        end
+    endcase
 
     unique case (wr_peripheral_sel)
         ACCESS_DATA_MEMORY: begin
@@ -110,12 +116,6 @@ always_comb begin
             bus.ready = '1;
         end
     endcase
-
-    if (pmod_wr_en != '0) begin
-        pmod_reg_addr = bus.wr_addr[1:0];
-    end else begin
-        pmod_reg_addr = pmod_reg_addr_rd;
-    end
 end
 
 always_ff @(posedge clk_sys) begin
@@ -135,16 +135,16 @@ end
 
 clk_core clock_core (
     .clk_out1(clk_sys),
-    .resetn(sys_rst_n),
-    .locked(locked),
-    .clk_in1(clk_100)
+    .resetn  (sys_rst_n),
+    .locked  (locked),
+    .clk_in1 (clk_100)
 );
 
 sync_reset sync_reset_inst (
-    .clk(clk_sys),
+    .clk       (clk_sys),
     .invert_rst(sys_rst_n),
-    .locked(locked),
-    .rst_n(rst_n)
+    .locked    (locked),
+    .rst_n     (rst_n)
 );
 
 pmod_gpio_controller pmod_gpio_controller_inst[3:0] (
@@ -158,32 +158,32 @@ pmod_gpio_controller pmod_gpio_controller_inst[3:0] (
 );
 
 data_memory data_memory_inst (
-    .clk(clk_sys),
-    .en(bus.en),
-    .wr(mem_wr),
-    .rd(mem_rd),
+    .clk    (clk_sys),
+    .en     (bus.en),
+    .wr     (mem_wr),
+    .rd     (mem_rd),
     .byte_en(bus.byte_en),
     .wr_data(bus.wr_data),
     .wr_addr(bus.wr_addr[31:2]),
     .rd_addr(bus.rd_addr[31:2]),
     .rd_data(mem_rd_data),
-    .ready(mem_ready)
+    .ready  (mem_ready)
 );
 
 address_decoder rd_address_decoder_inst (
-    .address(bus.rd_addr[31:2]),
+    .address       (bus.rd_addr[31:2]),
     .peripheral_sel(rd_peripheral_sel)
 );
 
 address_decoder wr_address_decoder_inst (
-    .address(bus.wr_addr[31:2]),
+    .address       (bus.wr_addr[31:2]),
     .peripheral_sel(wr_peripheral_sel)
 );
 
 processor processor_inst (
-    .clk(clk_sys),
+    .clk  (clk_sys),
     .rst_n(rst_n),
-    .bus (bus.master)
+    .bus  (bus.master)
 );
 
 mmio_bus_if bus (
