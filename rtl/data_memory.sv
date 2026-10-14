@@ -4,6 +4,7 @@
 // Author:   Hoyt Darnell
 // Created:  2026-07-30
 //
+// todo replace with cache
 // Description: Dual port read and write bram module.
 //
 // Timing: Read and write are synchonous
