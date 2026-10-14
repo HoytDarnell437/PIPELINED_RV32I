@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="system_bus_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="riscv_pkg" />
+            <top_module name="system_bus_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="2,127.952 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,267.153 ns"></ZoomEndTime>
+      <Cursor1Time time="2,153.904 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="110"></NameColumnWidth>
+      <ValueColumnWidth column_width="56"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="19" />
+   <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/clk_sys">
+      <obj_property name="ElementShortName">clk_sys</obj_property>
+      <obj_property name="ObjectShortName">clk_sys</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_bus_tb/rst_n">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_bus_tb/locked">
+      <obj_property name="ElementShortName">locked</obj_property>
+      <obj_property name="ObjectShortName">locked</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/led_reg">
+      <obj_property name="ElementShortName">led_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">led_reg[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/execute_stage_inst/alu/alu_res">
+      <obj_property name="ElementShortName">alu_res[31:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_res[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/fetch_stage_inst/pc_inst/addr">
+      <obj_property name="ElementShortName">addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/fetch_stage_inst/if_id_reg_inst/if_id_data_out.pc">
+      <obj_property name="ElementShortName">.pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">.pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/decode_stage_inst/id_ex_reg/id_ex_data_out.pc">
+      <obj_property name="ElementShortName">.pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">.pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/fetch_stage_inst/pc_inst/pc_imm">
+      <obj_property name="ElementShortName">pc_imm[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pc_imm[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/fetch_stage_inst/pc_inst/pc_src">
+      <obj_property name="ElementShortName">pc_src[1:0]</obj_property>
+      <obj_property name="ObjectShortName">pc_src[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/fetch_stage_inst/if_id_reg_inst/if_id_data_in.instr">
+      <obj_property name="ElementShortName">.instr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">.instr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/processor_inst/execute_stage_inst/branch">
+      <obj_property name="ElementShortName">branch</obj_property>
+      <obj_property name="ObjectShortName">branch</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group22">
+      <obj_property name="label">Registers</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[0]">
+         <obj_property name="ElementShortName">[0][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[1]">
+         <obj_property name="ElementShortName">[1][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[2]">
+         <obj_property name="ElementShortName">[2][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[3]">
+         <obj_property name="ElementShortName">[3][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[4]">
+         <obj_property name="ElementShortName">[4][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[4][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[5]">
+         <obj_property name="ElementShortName">[5][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[5][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[6]">
+         <obj_property name="ElementShortName">[6][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[6][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[7]">
+         <obj_property name="ElementShortName">[7][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[7][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[8]">
+         <obj_property name="ElementShortName">[8][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[8][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[9]">
+         <obj_property name="ElementShortName">[9][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[9][31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/register_file_inst/registers[10]">
+         <obj_property name="ElementShortName">[10][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[10][31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/processor_inst/memory_stage_inst/bus/ready">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/processor_inst/memory_stage_inst/ex_mem_data.mem_rd">
+      <obj_property name="ElementShortName">.mem_rd</obj_property>
+      <obj_property name="ObjectShortName">.mem_rd</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/processor_inst/memory_stage_inst/ex_mem_data.mem_wr">
+      <obj_property name="ElementShortName">.mem_wr</obj_property>
+      <obj_property name="ObjectShortName">.mem_wr</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/memory_stage_inst/bus/wr_data">
+      <obj_property name="ElementShortName">wr_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/memory_stage_inst/bus/rd_data">
+      <obj_property name="ElementShortName">rd_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_bus_tb/system_bus_inst/processor_inst/writeback_stage_inst/mem_wb_data.rd_data">
+      <obj_property name="ElementShortName">.rd_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">.rd_data[31:0]</obj_property>
+   </wvobject>
+</wave_config>
