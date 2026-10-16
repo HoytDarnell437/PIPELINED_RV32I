@@ -1,6 +1,6 @@
 # Directories to ignore
 vivado/
-.nvim/
+build/
 
 # SVLANG config
 slang.json

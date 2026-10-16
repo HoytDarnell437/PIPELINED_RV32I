@@ -12,18 +12,17 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="41,853.375 ns"></ZoomStartTime>
-      <ZoomEndTime time="41,891.326 ns"></ZoomEndTime>
-      <Cursor1Time time="41,885.000 ns"></Cursor1Time>
+      <ZoomStartTime time="520.843 ns"></ZoomStartTime>
+      <ZoomEndTime time="619.544 ns"></ZoomEndTime>
+      <Cursor1Time time="557.443 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="231"></NameColumnWidth>
-      <ValueColumnWidth column_width="71"></ValueColumnWidth>
+      <ValueColumnWidth column_width="67"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="12" />
    <wave_markers>
-      <marker label="" time="5398702" />
-      <marker label="" time="5412777" />
+      <marker label="" time="554443" />
    </wave_markers>
    <wvobject type="group" fp_name="group752">
       <obj_property name="label">Global Signals</obj_property>
@@ -376,10 +375,6 @@
       <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/processor_inst/hazard_unit_inst/write_before_read">
          <obj_property name="ElementShortName">write_before_read</obj_property>
          <obj_property name="ObjectShortName">write_before_read</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/processor_inst/hazard_unit_inst/ex_branch_jalr">
-         <obj_property name="ElementShortName">ex_branch_jalr</obj_property>
-         <obj_property name="ObjectShortName">ex_branch_jalr</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/system_bus_tb/system_bus_inst/processor_inst/hazard_unit_inst/id_jal">
          <obj_property name="ElementShortName">id_jal</obj_property>

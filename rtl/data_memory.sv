@@ -11,7 +11,7 @@
 //------------------------------------------------------------------------------
 
 module data_memory #(
-    localparam MEM_SIZE = 128,
+    localparam MEM_SIZE = 1024,
     localparam ADDR_WIDTH = $clog2(MEM_SIZE)
 )(
     input  logic        clk,
