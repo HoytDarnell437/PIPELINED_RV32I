@@ -1,6 +1,8 @@
 #ifndef PERIPHERALS_HPP
 #define PERIPHERALS_HPP
 
+#include "helper.hpp"
+
 class input_peripheral {
     protected:
         volatile const unsigned int * const address;
@@ -97,6 +99,32 @@ class Leds {
         void toggle(unsigned int number) {
             value ^= 1u << number;
             write();
+        }
+};
+
+class Pmod {
+    private:
+        volatile unsigned char * address_in;
+        volatile unsigned char * address_out;
+        volatile unsigned char * address_dir;
+
+    public:
+        Pmod(const char which) {
+            address_in = (volatile unsigned char *)(0x8000000c + ((to_lower(which) - 'a') << 2));
+            address_out = (volatile unsigned char *)(0x8000000d + ((to_lower(which) - 'a') << 2));
+            address_dir = (volatile unsigned char *)(0x8000000e + ((to_lower(which) - 'a') << 2));
+        }
+
+        void set_dir(const unsigned char direction) {
+            *address_dir = direction;
+        }
+
+        void write(const unsigned char out) {
+            *address_out = out;
+        }
+
+        char read() {
+            return *address_in;
         }
 };
 

@@ -9,11 +9,12 @@ INSTR_BIN   := $(BUILD_DIR)/instructions.bin
 DATA_BIN    := $(BUILD_DIR)/data.bin
 INSTR_HEX   := $(OUTPUT_DIR)/instructions.hex
 DATA_HEX    := $(OUTPUT_DIR)/data.hex
-CPP_SOURCE  := code/main.cpp
-CPP_HEADERS := code/peripherals.hpp
+CPP_SOURCE  := code/main.cpp code/helper.cpp
+CPP_HEADERS := code/peripherals.hpp code/helper.hpp
 
 CXXFLAGS := --target=riscv32-unknown-elf \
 	-march=rv32i -mabi=ilp32 \
+	-Os \
 	-ffreestanding -fno-builtin -fno-stack-protector \
 	-fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit \
 	-msmall-data-limit=0 -nostdlib
