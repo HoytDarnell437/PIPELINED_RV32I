@@ -16,8 +16,8 @@
 module system_bus import riscv_pkg::*; (
     input  logic       clk_100,
     input  logic       sys_rst_n,
-    input  logic [3:0] buttons,
-    input  logic [3:0] switches,
+    input  logic [3:0] buttons_raw,
+    input  logic [3:0] switches_raw,
     output logic [3:0] leds,
     inout  logic [7:0] ja,
     inout  logic [7:0] jb,
@@ -34,6 +34,10 @@ logic [7:0]  pmod_wr_data;
 logic [1:0]  pmod_reg_addr;
 logic [31:0] pmod_rd_data;
 logic [1:0]  pmod_reg_addr_rd;
+
+logic [3:0] buttons_sync;
+logic [3:0] switches;
+logic [3:0] buttons;
 
 logic        mem_rd;
 logic        mem_wr;
@@ -155,6 +159,22 @@ pmod_gpio_controller pmod_gpio_controller_inst[3:0] (
     .wr_data (pmod_wr_data),
     .reg_addr(pmod_reg_addr),
     .rd_data (pmod_rd_data)
+);
+
+input_synchronizer input_synchronizer_inst (
+    .clk_i(clk_sys),
+    .nrst_i(rst_n),
+    .buttons_i(buttons_raw),
+    .switches_i(switches_raw),
+    .synchronized_buttons_o(buttons_sync),
+    .synchronized_switches_o(switches)
+);
+
+debouncer debouncer_inst (
+    .clk_i(clk_sys),
+    .nrst_i(rst_n),
+    .buttons_i(buttons_sync),
+    .debounced_buttons_o(buttons)
 );
 
 data_memory data_memory_inst (

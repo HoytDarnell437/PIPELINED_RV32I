@@ -8,6 +8,7 @@
 
 module debouncer #(
     localparam int SAMPLE_PERIOD_CYCLES = 100_000,
+    localparam int ENABLE_COUNT_WIDTH   = $clog2(SAMPLE_PERIOD_CYCLES),
     localparam int STABLE_SAMPLES       = 16,
     localparam int COUNT_WIDTH          = $clog2(STABLE_SAMPLES)
 ) (
@@ -21,7 +22,7 @@ logic [COUNT_WIDTH-1:0] counter_array [3:0];
 logic [3:0]             prev_buttons;
 logic                   sample_enable;
 
-logic [16:0] enable_counter;
+logic [ENABLE_COUNT_WIDTH-1:0] enable_counter;
 
 always_ff @(posedge clk_i) begin
     if (!nrst_i) begin
