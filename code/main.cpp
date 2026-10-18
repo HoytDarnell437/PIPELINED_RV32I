@@ -8,15 +8,16 @@ extern "C" int main(void) {
 
     Switch switches[] = {Switch(0),Switch(1),Switch(2),Switch(3)};
 
+    bool last_buttons[] = {false, false, false, false};
+
     // main program loop
     for (;;) {
         for (int i = 0; i < 4; i++) {
-            if (buttons[i].active() != switches[i].active()) {
-                leds.activate(i);
+            bool active = buttons[i].active();
+            if (active && !last_buttons[i]) {
+                leds.toggle(i);
             }
-            else {
-                leds.deactivate(i);
-            }
+            last_buttons[i] = active;
         }
     }
 }

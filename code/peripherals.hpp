@@ -1,6 +1,8 @@
 #ifndef PERIPHERALS_HPP
 #define PERIPHERALS_HPP
 
+#include "helper.hpp"
+
 class input_peripheral {
     protected:
         volatile const unsigned int * const address;
@@ -97,6 +99,53 @@ class Leds {
         void toggle(unsigned int number) {
             value ^= 1u << number;
             write();
+        }
+};
+
+class Pmod {
+    private:
+        volatile unsigned char * address_in;
+        volatile unsigned char * address_out;
+        volatile unsigned char * address_dir;
+
+    public:
+
+        /**
+         * @brief Construct a new Pmod object
+         * 
+         * @param which Pmod selector a-d
+         */
+        Pmod(const char which) {
+            address_in = (volatile unsigned char *)(0x8000000c + ((to_lower(which) - 'a') << 2));
+            address_out = (volatile unsigned char *)(0x8000000d + ((to_lower(which) - 'a') << 2));
+            address_dir = (volatile unsigned char *)(0x8000000e + ((to_lower(which) - 'a') << 2));
+        }
+
+        /**
+         * @brief Set the dir object
+         * 
+         * @param direction Each bit corresponds to a pin of the pmod 1 == out, 0 == in
+         */
+        void set_dir(const unsigned char direction) {
+            *address_dir = direction;
+        }
+
+        /**
+         * @brief Write to the pmod if writable
+         * 
+         * @param out bits to output
+         */
+        void write(const unsigned char out) {
+            *address_out = out;
+        }
+
+        /**
+         * @brief Read from pmod if readable
+         * 
+         * @return char Input bits
+         */
+        char read() {
+            return *address_in;
         }
 };
 
