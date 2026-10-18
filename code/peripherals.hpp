@@ -109,53 +109,41 @@ class Pmod {
         volatile unsigned char * address_dir;
 
     public:
-<<<<<<< HEAD
 
         /**
          * @brief Construct a new Pmod object
          * 
          * @param which Pmod selector a-d
          */
-=======
->>>>>>> 4ef4df5073083553d7ba50d1a7df1c43f9e470e5
         Pmod(const char which) {
             address_in = (volatile unsigned char *)(0x8000000c + ((to_lower(which) - 'a') << 2));
             address_out = (volatile unsigned char *)(0x8000000d + ((to_lower(which) - 'a') << 2));
             address_dir = (volatile unsigned char *)(0x8000000e + ((to_lower(which) - 'a') << 2));
         }
 
-<<<<<<< HEAD
         /**
          * @brief Set the dir object
          * 
          * @param direction Each bit corresponds to a pin of the pmod 1 == out, 0 == in
          */
-=======
->>>>>>> 4ef4df5073083553d7ba50d1a7df1c43f9e470e5
         void set_dir(const unsigned char direction) {
             *address_dir = direction;
         }
 
-<<<<<<< HEAD
         /**
          * @brief Write to the pmod if writable
          * 
          * @param out bits to output
          */
-=======
->>>>>>> 4ef4df5073083553d7ba50d1a7df1c43f9e470e5
         void write(const unsigned char out) {
             *address_out = out;
         }
 
-<<<<<<< HEAD
         /**
          * @brief Read from pmod if readable
          * 
          * @return char Input bits
          */
-=======
->>>>>>> 4ef4df5073083553d7ba50d1a7df1c43f9e470e5
         char read() {
             return *address_in;
         }
